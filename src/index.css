@@ -1,6 +1,92 @@
+@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Lora:ital,wght@0,400;0,700;1,700&display=swap");
 @import "tailwindcss";
 
+/* Identidad visual de Florae */
 @theme {
-    --color-florae: #2e7d32;
-    --color-fondo: #f5f7f2;
+    /* Colores principales */
+    --color-forest-dark: #254D2D;
+    --color-forest: #3F5D3F;
+    --color-primary: #89AB78;
+    --color-primary-hover: #709261;
+    --color-sage: #A3B18A;
+    --color-pale: #E8EFE3;
+
+    /* Fondos y superficies */
+    --color-background: #F8F7F3;
+    --color-surface: #FFFFFF;
+    --color-blush: #FAF3F3;
+    --color-soft: #F5F7F1;
+    --color-border: #DFE9D7;
+
+    /* Textos */
+    --color-text: #303B30;
+    --color-secondary: #6B7280;
+    --color-muted: #84917F;
+
+    /* Estados */
+    --color-success: #709261;
+    --color-success-light: #E8EFE3;
+    --color-warning: #96763C;
+    --color-warning-light: #F2EDE0;
+    --color-danger: #A34C4C;
+    --color-danger-light: #F8ECEA;
+    --color-info: #527D96;
+    --color-info-light: #EAF1F5;
+
+    /* Tipografías */
+    --font-nunito: "Nunito", sans-serif;
+    --font-lora: "Lora", serif;
+
+    /* Sombras */
+    --shadow-florae: 0 4px 20px rgba(63, 93, 63, 0.08);
+    --shadow-florae-hover: 0 8px 25px rgba(63, 93, 63, 0.14);
+
+    /* Bordes redondeados */
+    --radius-florae: 24px;
+
+    /* Animaciones */
+    --animate-fade-in: fade-in 0.4s ease-out;
+    --animate-slide-up: slide-up 0.4s ease-out;
+    --animate-scale-in: scale-in 0.25s ease-out;
+    --animate-float: float 4s ease-in-out infinite;
+
+    @keyframes fade-in {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes slide-up {
+        from { opacity: 0; transform: translateY(15px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes scale-in {
+        from { opacity: 0; transform: scale(0.95); }
+        to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-8px); }
+    }
+}
+
+/* Ocultar la barra de desplazamiento */
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+
+/* Reducir animaciones según las preferencias del usuario */
+@media (prefers-reduced-motion: reduce) {
+    .animate-fade-in,
+    .animate-slide-up,
+    .animate-scale-in,
+    .animate-float {
+        animation: none;
+    }
 }

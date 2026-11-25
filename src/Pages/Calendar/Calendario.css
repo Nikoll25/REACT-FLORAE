@@ -1,0 +1,149 @@
+
+/* Estilos generales del calendario */
+
+.calendario-natural .fc {
+    color: #3F5D3F;
+    font-family: inherit;
+}
+
+.calendario-natural .fc-toolbar {
+    margin-bottom: 24px !important;
+    justify-content: center !important;
+}
+
+.calendario-natural .fc-toolbar-title {
+    font-family: Georgia, serif;
+    font-size: 1.65rem;
+    font-weight: 700;
+    color: #3F5D3F;
+    text-transform: capitalize;
+}
+
+/* Bordes del calendario */
+
+.calendario-natural .fc-scrollgrid {
+    border: 0 !important;
+}
+
+.calendario-natural .fc-theme-standard td,
+.calendario-natural .fc-theme-standard th {
+    border-color: #ECEEE7;
+}
+
+/* Encabezados de los días */
+
+.calendario-natural .fc-col-header-cell {
+    border: 0 !important;
+    padding: 12px 0 16px;
+    background: white;
+}
+
+.calendario-natural .fc-col-header-cell-cushion {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #8D9986;
+    text-decoration: none;
+}
+
+/* Celdas de los días */
+
+.calendario-natural .fc-daygrid-day {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.calendario-natural .fc-daygrid-day:hover {
+    background: #F6F9F2;
+}
+
+.calendario-natural .fc-daygrid-day-frame {
+    min-height: 105px;
+}
+
+/* Número de cada día */
+
+.calendario-natural .fc-daygrid-day-number {
+    padding: 9px 11px;
+    color: #596B53;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+/* Día actual */
+
+.calendario-natural .fc-day-today {
+    background: #F6F9F2 !important;
+}
+
+/* Día seleccionado: conserva el fondo verde de la celda */
+
+.calendario-natural .fc-daygrid-day[data-date] {
+    transition: background-color 0.2s ease;
+}
+
+/* Eventos de cuidados */
+
+.calendario-natural .fc-daygrid-event-harness {
+    display: inline-block;
+    margin: 2px 3px;
+    vertical-align: top;
+}
+
+.calendario-natural .fc-daygrid-event {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    cursor: pointer;
+}
+
+.calendario-natural .fc-daygrid-day-events {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 5px 3px;
+}
+
+.calendario-natural .fc-daygrid-more-link {
+    font-size: 11px;
+    color: #719662;
+}
+
+/* Días de otros meses */
+
+.calendario-natural .fc-day-other {
+    background: #FCFCFA;
+}
+
+.calendario-natural .fc-day-other .fc-daygrid-day-number {
+    opacity: 0.35;
+}
+
+/* Adaptación a dispositivos móviles */
+
+@media (max-width: 640px) {
+    .calendario-natural .fc-toolbar-title {
+        font-size: 1.2rem;
+    }
+
+    .calendario-natural .fc-daygrid-day-frame {
+        min-height: 65px;
+    }
+
+    .calendario-natural .fc-col-header-cell-cushion {
+        font-size: 9px;
+        letter-spacing: 0;
+    }
+
+    .calendario-natural .fc-daygrid-day-number {
+        padding: 5px;
+        font-size: 10px;
+    }
+
+    .calendario-natural .fc-daygrid-event-harness {
+        margin: 1px;
+    }
+}

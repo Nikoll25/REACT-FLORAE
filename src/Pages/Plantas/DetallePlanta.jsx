@@ -1,7 +1,8 @@
 
 import { useEffect, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { obtenerPlantas, obtenerImagen } from "../../services/api";
+import { useJardinStore } from "../../store/useJardinStore";
+import { obtenerPlanta, obtenerImagen } from "../../services/api";
 import atras from "../../assets/atras.png";
 
 function DetallePlanta() {
@@ -12,6 +13,31 @@ function DetallePlanta() {
     // permite regresar a la pantalla anterior
     const navigate = useNavigate();
 
+    const [mostrarModal, setMostrarModal] = useState(false);
+    const [agregando, setAgregando] = useState(false);
+    const [errorAgregar, setErrorAgregar] = useState("");
+
+    const handleAgregarPlanta = async () => {
+        if (!planta || agregando || yaAgregada) return;
+
+        if (!localStorage.getItem("token")) {
+            setErrorAgregar("Debes iniciar sesión para añadir plantas a tu jardín.");
+            return;
+        }
+
+        setAgregando(true);
+        setErrorAgregar("");
+
+        try {
+            await agregarPlanta(planta.id);
+            setMostrarModal(true);
+        } catch (error) {
+            setErrorAgregar(error.message || "No se pudo agregar la planta.");
+        } finally {
+            setAgregando(false);
+        }
+    };
+
     // guardamos la información de la planta
     const [planta, setPlanta] = useState(null);
 
@@ -21,36 +47,50 @@ function DetallePlanta() {
     // guardamos posibles errores
     const [error, setError] = useState("");
 
-    // consultamos las plantas y buscamos la seleccionada
+    // Obtenemos las plantas y la acción del store
+    const plantasJardin = useJardinStore(
+        (state) => state.plantas
+    );
+
+    const agregarPlanta = useJardinStore((state) => state.agregarPlanta);
+    const cargarPlantasJardin = useJardinStore((state) => state.cargarPlantas);
+
     useEffect(() => {
+        if (localStorage.getItem("token")) {
+            cargarPlantasJardin().catch(console.error);
+        }
+    }, [cargarPlantasJardin]);
+
+    // Comprobamos si la planta ya está en el jardín
+    const yaAgregada = plantasJardin.some(
+        (item) => String(item.planta_id ?? item.plant?.id) === String(planta?.id)
+    );
+
+    // Consultamos la ficha de la planta seleccionada
+    useEffect(() => {
+        let activo = true;
 
         const cargarPlanta = async () => {
             try {
                 setCargando(true);
                 setError("");
+                const respuesta = await obtenerPlanta(id);
+                const datos = respuesta?.data?.plant || respuesta?.data?.planta ||
+                    respuesta?.data || respuesta?.plant || respuesta?.planta || respuesta;
 
-                const datos = await obtenerPlantas();
-
-                const plantaEncontrada = datos.find(
-                    (item) => String(item.id) === String(id)
-                );
-
-                if (plantaEncontrada) {
-                    setPlanta(plantaEncontrada);
-                } else {
-                    setError("No encontramos la información de esta planta.");
+                if (activo) {
+                    if (datos?.id) setPlanta(datos);
+                    else setError("No encontramos la información de esta planta.");
                 }
-
             } catch (error) {
-                console.error("error al cargar la planta:", error);
-                setError("No fue posible cargar la información.");
+                if (activo) setError("No fue posible cargar la información.");
             } finally {
-                setCargando(false);
+                if (activo) setCargando(false);
             }
         };
 
         cargarPlanta();
-
+        return () => { activo = false; };
     }, [id]);
 
     // obtenemos la imagen de la planta
@@ -58,6 +98,9 @@ function DetallePlanta() {
 
         const imagen =
             planta?.image_plant?.image ||
+            planta?.imagenes?.[0]?.image ||
+            planta?.imagenes?.[0]?.imagen ||
+            planta?.imagenes?.[0]?.ruta ||
             planta?.image_url ||
             planta?.image ||
             planta?.imagen;
@@ -69,7 +112,7 @@ function DetallePlanta() {
     const datosPlanta = [
         {
             nombre: "Tipo",
-            valor: planta?.type || "No especificado",
+            valor: planta?.tipo || planta?.type || "No especificado",
             icono: "tipo"
         },
         {
@@ -79,7 +122,7 @@ function DetallePlanta() {
         },
         {
             nombre: "Tamaño",
-            valor: planta?.size || "No especificado",
+            valor: planta?.size || planta?.tamano || "No especificado",
             icono: "tamano"
         }
     ];
@@ -181,7 +224,7 @@ function DetallePlanta() {
                         {imagenPlanta() ? (
                             <img
                                 src={imagenPlanta()}
-                                alt={planta.common_name}
+                                alt={planta.nombre_comun || planta.common_name}
                                 className="h-[350px] w-full rounded-[25px] object-cover shadow-[1px_3px_6px_#555] sm:h-[480px] lg:h-[555px] lg:rounded-[30px]"
                             />
                         ) : (
@@ -199,22 +242,22 @@ function DetallePlanta() {
 
                             {/* nombre de la planta */}
                             <h1 className="text-3xl font-bold leading-tight text-black sm:text-[36px]">
-                                {planta.scientific_name || "Nombre científico no disponible"}
+                                {planta.nombre_cientifico || planta.scientific_name || "Nombre científico no disponible"}
                             </h1>
 
                             {/* apodo */}
                             <p className="mt-6 text-xl italic text-[#B0B0B0] sm:text-[26px]">
-                                "{planta.nickname || planta.local_nickname || planta.common_name}"
+                                "{planta.nickname || planta.local_nickname || planta.nombre_comun || planta.common_name}"
                             </p>
 
                             {/* descripción */}
                             <p className="mt-7 text-[17px] leading-[1.3] text-black sm:text-[20px]">
-                                {planta.plant_description || "No hay una descripción disponible para esta planta."}
+                                {planta.descripcion || planta.plant_description || "No hay una descripción disponible para esta planta."}
                             </p>
 
                             {/* origen */}
                             <p className="mt-5 text-base text-[#858585] sm:text-[19px]">
-                                <strong>Origen:</strong> {planta.origin || "No especificado"}
+                                <strong>Origen:</strong> {planta.origen || planta.origin || "No especificado"}
                             </p>
 
                             {/* características */}
@@ -249,12 +292,23 @@ function DetallePlanta() {
                                 Ver cuidados detallados
                             </Link>
 
+                            {errorAgregar && (
+                                <p role="alert" className="mt-5 text-center text-sm text-red-600">
+                                    {errorAgregar}
+                                </p>
+                            )}
+
                             {/* botón añadir al jardín */}
                             <button
                                 type="button"
-                                className="mx-auto mt-6 flex h-[46px] w-[85%] items-center justify-center rounded-[15px] bg-[#7DA46C] text-base font-bold italic text-white transition-all duration-300 hover:bg-[#5F8A52] hover:shadow-md"
+                                onClick={handleAgregarPlanta}
+                                disabled={yaAgregada || agregando || mostrarModal}
+                                className={`mx-auto mt-6 flex h-[46px] w-[85%] items-center justify-center rounded-[15px] text-base font-bold italic text-white transition-all duration-300 ${yaAgregada
+                                    ? "cursor-not-allowed bg-[#A3B18A]"
+                                    : "bg-[#7DA46C] hover:bg-[#5F8A52] hover:shadow-md"
+                                    }`}
                             >
-                                + Añadir a mi Jardín
+                                {agregando ? "Añadiendo..." : yaAgregada ? "✓ Añadida a mi Jardín" : "+ Añadir a mi Jardín"}
                             </button>
 
                         </div>
@@ -263,10 +317,38 @@ function DetallePlanta() {
 
                 </div>
 
+                {mostrarModal && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 px-4">
+
+                        <div className="w-full max-w-sm rounded-3xl bg-[#F8F7F3] p-8 text-center shadow-2xl animate-in zoom-in duration-300">
+
+                            <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-[#E5EDDF]">
+                                <span className="text-4xl text-[#5F8A52]">✓</span>
+                            </div>
+
+                            <h2 className="mb-3 text-2xl font-bold text-[#3F5D3F]">
+                                ¡Excelente!
+                            </h2>
+
+                            <p className="mb-6 text-base text-gray-600">
+                                ¡Planta añadida correctamente a tu jardín!
+                            </p>
+
+                            <button
+                                type="button"
+                                onClick={() => navigate("/jardin")}
+                                className="rounded-xl bg-[#7DA46C] px-6 py-3 font-semibold text-white hover:bg-[#5F8A52]"
+                            >
+                                Ir a Mi Jardín
+                            </button>
+
+
+
+                        </div>
+                    </div>
+                )}
             </section>
-
         </main>
-
     );
 }
 

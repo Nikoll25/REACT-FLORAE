@@ -1,29 +1,143 @@
 
-import { Route, Routes } from "react-router-dom";
-import './App.css'
+import {
+    Route,
+    Routes,
+    Navigate,
+    useLocation,
+} from "react-router-dom";
 
-import Explorar from "./Pages/Explore/Explorar";
-import DetallePlanta from "./Pages/Plantas/DetallePlanta";
+import "./App.css";
+
+// Componentes generales
+import Header from "./Components/Header";
+import Footer from "./Components/Footer";
+import ExplorarLayout from "./Components/ExplorarLayout";
+
+// Autenticación
+import Login from "./pages/Auth/Login";
+import Register from "./pages/Auth/Register";
+
+// Explorar
+import Explorar from "./pages/Explore/Explorar";
+import ExplorePlagas from "./pages/ExplorePlagas/ExplorePlagas";
+
+// Jardín
+import Jardin from "./pages/Jardin/Jardin";
+import VerMas from "./pages/Jardin/VerMas";
+
+// Plantas
+import DetallePlanta from "./pages/plantas/DetallePlanta";
 import CuidadosPlanta from "./pages/plantas/CuidadosPlanta";
-//import ExplorarPlagas from "./Pages/Explore Plagas/Explore Plagas";
-import Jardin from "./Pages/Jardin/Jardin";
-///import Navbar from "./Components/Navbar/Navbar";
-//import Footer from "./Components/Footer/Footer";
-//import Sidebar from "./Components/Sidebar/Sidebar";
 
+// Plagas
+import FichaPlaga from "./pages/plagas/FichaPlaga";
+
+// Calendario
+import Calendario from "./pages/Calendar/Calendario";
+
+// Perfil
+import Perfil from "./pages/Perfil/Perfil";
+import GestionCuenta from "./pages/Perfil/GestionCuenta";
 
 const App = () => {
-  return (
-    <>
+    const location = useLocation();
 
-      <Routes>
-        <Route path="/explorar" element={<Explorar />} />
-        <Route path="/jardin" element={<Jardin />} />
-        <Route path="/planta/:id" element={<DetallePlanta />} />
-        <Route path="/cuidados/:id" element={<CuidadosPlanta />} />
-      </Routes>
-    </>
-  )
-}
+    // Ocultar el encabezado y el pie de página en autenticación
+    const esAutenticacion = [
+        "/login",
+        "/registro",
+        "/recuperar-contrasena",
+    ].includes(location.pathname);
 
-export default App
+    return (
+        <>
+            {!esAutenticacion && <Header />}
+
+            <Routes>
+                {/* Ruta principal */}
+                <Route
+                    path="/"
+                    element={<Navigate to="/login" replace />}
+                />
+
+                {/* Autenticación */}
+                <Route
+                    path="/login"
+                    element={<Login />}
+                />
+
+                <Route
+                    path="/registro"
+                    element={<Register />}
+                />
+
+                {/* Explorar plantas y plagas */}
+                <Route
+                    path="/explorar"
+                    element={<ExplorarLayout />}
+                >
+                    <Route
+                        index
+                        element={<Explorar />}
+                    />
+
+                    <Route
+                        path="plagas"
+                        element={<ExplorePlagas />}
+                    />
+                </Route>
+
+                {/* Detalle de plantas */}
+                <Route
+                    path="/planta/:id"
+                    element={<DetallePlanta />}
+                />
+
+                {/* Cuidados de plantas */}
+                <Route
+                    path="/cuidados/:id"
+                    element={<CuidadosPlanta />}
+                />
+
+                {/* Detalle de plagas */}
+                <Route
+                    path="/plaga/:id"
+                    element={<FichaPlaga />}
+                />
+
+                {/* Jardín */}
+                <Route
+                    path="/jardin"
+                    element={<Jardin />}
+                />
+
+                <Route
+                    path="/jardin/vermas/:id"
+                    element={<VerMas />}
+                />
+
+                {/* Calendario */}
+                <Route
+                    path="/calendario"
+                    element={<Calendario />}
+                />
+
+                {/* Perfil */}
+                <Route
+                    path="/perfil"
+                    element={<Perfil />}
+                />
+                <Route path="/gestion-cuenta" element={<GestionCuenta />} />
+                {/* Rutas no encontradas */}
+                <Route
+                    path="*"
+                    element={<Navigate to="/login" replace />}
+                />
+            </Routes>
+
+            {!esAutenticacion && <Footer />}
+        </>
+    );
+};
+
+export default App;
