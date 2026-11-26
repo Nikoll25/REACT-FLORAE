@@ -1,9 +1,9 @@
 
 import { useEffect, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { useJardinStore } from "../../store/useJardinStore";
-import { obtenerPlanta, obtenerImagen } from "../../services/api";
-import atras from "../../assets/atras.png";
+import { useJardinStore } from "../../../store/useJardinStore";
+import { obtenerPlanta, obtenerImagen } from "../../../services/api";
+import atras from "../../../assets/atras.png";
 
 function DetallePlanta() {
 

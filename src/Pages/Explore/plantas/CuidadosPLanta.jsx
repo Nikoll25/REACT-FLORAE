@@ -1,13 +1,13 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { obtenerPlanta, obtenerImagen } from "../../services/api";
+import { obtenerPlanta, obtenerImagen } from "../../../services/api";
 
-import atras from "../../assets/atras.png";
-import gota from "../../assets/gota.png";
-import sol from "../../assets/sol.png";
-import temperatura from "../../assets/temperatura.png";
-import fertilizante from "../../assets/Fertilizante.png";
+import atras from "../../../assets/atras.png";
+import gota from "../../../assets/gota.png";
+import sol from "../../../assets/sol.png";
+import temperatura from "../../../assets/temperatura.png";
+import fertilizante from "../../../assets/Fertilizante.png";
 
 function CuidadosPlanta() {
 
@@ -216,7 +216,7 @@ function CuidadosPlanta() {
                             <div className="flex w-full flex-wrap justify-center gap-5">
 
                                 {/* riego */}
-                                <div className="flex h-[180px] w-[220px] flex-none flex-col items-center justify-start gap-2.5 rounded-[20px] border-[3.5px] border-[#adadad] px-2 pt-2.5 shadow-[1px_3px_rgba(173,173,173,0.214)] transition-all duration-300 hover:-translate-y-[3px] hover:shadow-[0_6px_16px_rgba(0,0,0,0.12)]">
+                                <div className="flex h-[180px] w-[215px] flex-none flex-col items-center justify-start gap-2.5 rounded-[20px] border-[3.5px] border-[#adadad] px-2 pt-2.5 shadow-[1px_3px_rgba(173,173,173,0.214)] transition-all duration-300 hover:-translate-y-[3px] hover:shadow-[0_6px_16px_rgba(0,0,0,0.12)]">
 
                                     <p className="font-sans text-[#717171]">
                                         <b>Riego</b>

@@ -1,142 +1,132 @@
-
-import {
-    Route,
-    Routes,
-    Navigate,
-    useLocation,
-} from "react-router-dom";
-
+import { Route, Routes, Navigate } from "react-router-dom";
 import "./App.css";
 
-// Componentes generales
-import Header from "./Components/Header";
-import Footer from "./Components/Footer";
+import UserRoute from "./Components/UserRoute";
+import UserLayout from "./Components/UserLayout";
 import ExplorarLayout from "./Components/ExplorarLayout";
 
-// Autenticación
 import Login from "./pages/Auth/Login";
 import Register from "./pages/Auth/Register";
-
-// Explorar
 import Explorar from "./pages/Explore/Explorar";
 import ExplorePlagas from "./pages/ExplorePlagas/ExplorePlagas";
-
-// Jardín
 import Jardin from "./pages/Jardin/Jardin";
 import VerMas from "./pages/Jardin/VerMas";
-
-// Plantas
-import DetallePlanta from "./pages/plantas/DetallePlanta";
-import CuidadosPlanta from "./pages/plantas/CuidadosPlanta";
-
-// Plagas
-import FichaPlaga from "./pages/plagas/FichaPlaga";
-
-// Calendario
+import DetallePlanta from "./pages/Explore/plantas/DetallePlanta";
+import CuidadosPlanta from "./pages/Explore/plantas/CuidadosPlanta";
+import FichaPlaga from "./pages/ExplorePlagas/plagas/FichaPlaga";
 import Calendario from "./pages/Calendar/Calendario";
-
-// Perfil
 import Perfil from "./pages/Perfil/Perfil";
 import GestionCuenta from "./pages/Perfil/GestionCuenta";
 
+import AdminRoute from "./Components/Admin/AdminRoute";
+import AdminLayout from "./Components/Admin/AdminLayout";
+import Dashboard from "./pages/Admin/Dashboard/Dashboard";
+
+import Plantas from "./pages/Admin/Plantas/Plantas";
+import CrearPlanta from "./pages/Admin/Plantas/CrearPlanta";
+import DetallePlantaAdmin from "./pages/Admin/Plantas/DetallePlanta";
+import EditarPlanta from "./pages/Admin/Plantas/EditarPlanta";
+
+import Plagas from "./pages/Admin/Plagas/Plagas";
+import DetallePlagaAdmin from "./pages/Admin/Plagas/DetallePlaga";
+import CreatePlaga from "./pages/Admin/Plagas/CreatePlaga";
+import EditarPlaga from "./pages/Admin/Plagas/EditarPlaga";
+
+import Tratamientos from "./pages/Admin/Tratamientos/Tratamientos";
+import FormularioTratamiento from "./pages/Admin/Tratamientos/FormularioTratamiento";
+import DetalleTratamiento from "./pages/Admin/Tratamientos/DetalleTratamiento";
+
+import Medicamentos from "./pages/Admin/Medicamentos/Medicamentos";
+import FormularioMedicamento from "./pages/Admin/Medicamentos/FormularioMedicamento";
+import DetalleMedicamento from "./pages/Admin/Medicamentos/DetalleMedicamento";
+
+import Usuarios from "./pages/Admin/Usuarios/Usuarios";
+import DetalleUsuario from "./pages/Admin/Usuarios/DetalleUsuario";
+
+import SugerenciasIA from "./pages/Admin/SugerenciasIA/SugerenciasIA";
+import DetalleSugerencia from "./pages/Admin/SugerenciasIA/DetalleSugerencia";
+
+import Planes from "./pages/Admin/Planes/Planes";
+import Suscripciones from "./pages/Admin/Suscripciones/Suscripciones";
+import DetalleSuscripcion from "./pages/Admin/Suscripciones/DetalleSuscripcion";
+import Pagos from "./pages/Admin/Pagos/Pagos";
+import DetallePago from "./pages/Admin/Pagos/DetallePago";
+import PerfilAdmin from "./pages/Admin/Perfil/PerfilAdmin";
+
 const App = () => {
-    const location = useLocation();
-
-    // Ocultar el encabezado y el pie de página en autenticación
-    const esAutenticacion = [
-        "/login",
-        "/registro",
-        "/recuperar-contrasena",
-    ].includes(location.pathname);
-
     return (
-        <>
-            {!esAutenticacion && <Header />}
+        <Routes>
+            {/* Autenticación */}
+            <Route path="/" element={<Navigate to="/login" replace />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/registro" element={<Register />} />
 
-            <Routes>
-                {/* Ruta principal */}
-                <Route
-                    path="/"
-                    element={<Navigate to="/login" replace />}
-                />
+            {/* Rutas protegidas del usuario */}
+            <Route element={<UserRoute />}>
+                <Route element={<UserLayout />}>
+                    <Route path="/explorar" element={<ExplorarLayout />}>
+                        <Route index element={<Explorar />} />
+                        <Route path="plagas" element={<ExplorePlagas />} />
+                    </Route>
 
-                {/* Autenticación */}
-                <Route
-                    path="/login"
-                    element={<Login />}
-                />
-
-                <Route
-                    path="/registro"
-                    element={<Register />}
-                />
-
-                {/* Explorar plantas y plagas */}
-                <Route
-                    path="/explorar"
-                    element={<ExplorarLayout />}
-                >
-                    <Route
-                        index
-                        element={<Explorar />}
-                    />
-
-                    <Route
-                        path="plagas"
-                        element={<ExplorePlagas />}
-                    />
+                    <Route path="/planta/:id" element={<DetallePlanta />} />
+                    <Route path="/cuidados/:id" element={<CuidadosPlanta />} />
+                    <Route path="/plaga/:id" element={<FichaPlaga />} />
+                    <Route path="/jardin" element={<Jardin />} />
+                    <Route path="/jardin/vermas/:id" element={<VerMas />} />
+                    <Route path="/calendario" element={<Calendario />} />
+                    <Route path="/perfil" element={<Perfil />} />
+                    <Route path="/gestion-cuenta" element={<GestionCuenta />} />
                 </Route>
+            </Route>
 
-                {/* Detalle de plantas */}
-                <Route
-                    path="/planta/:id"
-                    element={<DetallePlanta />}
-                />
+            {/* Rutas protegidas del administrador */}
+            <Route path="/admin" element={<AdminRoute />}>
+                <Route element={<AdminLayout />}>
+                    <Route index element={<Dashboard />} />
 
-                {/* Cuidados de plantas */}
-                <Route
-                    path="/cuidados/:id"
-                    element={<CuidadosPlanta />}
-                />
+                    <Route path="plantas" element={<Plantas />} />
+                    <Route path="plantas/crear" element={<CrearPlanta />} />
+                    <Route path="plantas/:id" element={<DetallePlantaAdmin />} />
+                    <Route path="plantas/:id/editar" element={<EditarPlanta />} />
 
-                {/* Detalle de plagas */}
-                <Route
-                    path="/plaga/:id"
-                    element={<FichaPlaga />}
-                />
+                    <Route path="plagas" element={<Plagas />} />
+                    <Route path="plagas/crear" element={<CreatePlaga />} />
+                    <Route path="plagas/:id" element={<DetallePlagaAdmin />} />
+                    <Route path="plagas/:id/editar" element={<EditarPlaga />} />
 
-                {/* Jardín */}
-                <Route
-                    path="/jardin"
-                    element={<Jardin />}
-                />
+                    <Route path="tratamientos" element={<Tratamientos />} />
+                    <Route path="tratamientos/crear" element={<FormularioTratamiento />} />
+                    <Route path="tratamientos/:id" element={<DetalleTratamiento />} />
+                    <Route path="tratamientos/:id/editar" element={<FormularioTratamiento />} />
 
-                <Route
-                    path="/jardin/vermas/:id"
-                    element={<VerMas />}
-                />
+                    <Route path="medicamentos" element={<Medicamentos />} />
+                    <Route path="medicamentos/crear" element={<FormularioMedicamento />} />
+                    <Route path="medicamentos/:id" element={<DetalleMedicamento />} />
+                    <Route path="medicamentos/:id/editar" element={<FormularioMedicamento />} />
 
-                {/* Calendario */}
-                <Route
-                    path="/calendario"
-                    element={<Calendario />}
-                />
+                    <Route path="usuarios" element={<Usuarios />} />
+                    <Route path="usuarios/:id" element={<DetalleUsuario />} />
 
-                {/* Perfil */}
-                <Route
-                    path="/perfil"
-                    element={<Perfil />}
-                />
-                <Route path="/gestion-cuenta" element={<GestionCuenta />} />
-                {/* Rutas no encontradas */}
-                <Route
-                    path="*"
-                    element={<Navigate to="/login" replace />}
-                />
-            </Routes>
+                    <Route path="sugerencias" element={<SugerenciasIA />} />
+                    <Route path="sugerencias/:id" element={<DetalleSugerencia />} />
 
-            {!esAutenticacion && <Footer />}
-        </>
+                    <Route path="planes" element={<Planes />} />
+
+                    <Route path="suscripciones" element={<Suscripciones />} />
+                    <Route path="suscripciones/:id" element={<DetalleSuscripcion />} />
+
+                    <Route path="pagos" element={<Pagos />} />
+                    <Route path="pagos/:id" element={<DetallePago />} />
+
+                    <Route path="perfil" element={<PerfilAdmin />} />
+
+                    <Route path="*" element={<Navigate to="/admin" replace />} />
+                </Route>
+            </Route>
+
+            <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
     );
 };
 

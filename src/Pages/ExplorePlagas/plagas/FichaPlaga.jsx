@@ -5,9 +5,9 @@ import {
     obtenerPlaga,
     obtenerImagen,
     registrarPlagaJardin,
-} from "../../services/api";
-import { useJardinStore } from "../../store/useJardinStore";
-import atras from "../../assets/atras.png";
+} from "../../../services/api";
+import { useJardinStore } from "../../../store/useJardinStore";
+import atras from "../../../assets/atras.png";
 
 function FichaPlaga() {
     const { id } = useParams();
