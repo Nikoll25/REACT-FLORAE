@@ -1,8 +1,7 @@
-
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { obtenerPlanta, obtenerImagen } from "../../../services/api";
-
+import { obtenerPlanta } from "../../../services/api";
+import GaleriaPlanta from "../../../Components/GaleriaPlanta";
 import atras from "../../../assets/atras.png";
 import gota from "../../../assets/gota.png";
 import sol from "../../../assets/sol.png";
@@ -26,52 +25,33 @@ function CuidadosPlanta() {
     // guardamos posibles errores
     const [error, setError] = useState("");
 
-    // consultamos la planta seleccionada y sus cuidados registrados
+    // Consultamos la ficha de la planta seleccionada
     useEffect(() => {
+        let activo = true;
 
         const cargarPlanta = async () => {
             try {
                 setCargando(true);
                 setError("");
-
                 const respuesta = await obtenerPlanta(id);
+                const datos = respuesta?.data?.plant || respuesta?.data?.planta ||
+                    respuesta?.data || respuesta?.plant || respuesta?.planta || respuesta;
 
-                // obtenemos los datos de la planta
-                const datos = respuesta?.data?.plant || respuesta?.data?.planta || respuesta?.data || respuesta?.plant || respuesta?.planta || respuesta;
-
-
-                if (datos && datos.id) {
-                    setPlanta(datos);
-                } else {
-                    setError("No encontramos la información de esta planta.");
+                if (activo) {
+                    if (datos?.id) setPlanta(datos);
+                    else setError("No encontramos la información de esta planta.");
                 }
-
             } catch (error) {
-                console.error("error al cargar la planta:", error);
-                setError("No fue posible cargar la información.");
+                if (activo) setError("No fue posible cargar la información.");
             } finally {
-                setCargando(false);
+                if (activo) setCargando(false);
             }
         };
 
         cargarPlanta();
-
+        return () => { activo = false; };
     }, [id]);
 
-    // obtenemos la imagen de la planta
-    const imagenPlanta = () => {
-
-        const imagen =
-            planta?.image_plant?.image ||
-            planta?.imagenes?.[0]?.image ||
-            planta?.imagenes?.[0]?.imagen ||
-            planta?.imagenes?.[0]?.ruta ||
-            planta?.image_url ||
-            planta?.image ||
-            planta?.imagen;
-
-        return imagen ? obtenerImagen(imagen) : null;
-    };
 
     // obtenemos los cuidados registrados para la planta
     const cuidados = Array.isArray(planta?.plant_cares)
@@ -115,7 +95,6 @@ function CuidadosPlanta() {
             <main className="flex min-h-screen items-center justify-center bg-[#F8F7F3]">
                 <div className="text-center">
                     <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-[#DDE5D6] border-t-[#7DA46C]"></div>
-
                     <p className="text-lg text-[#718568]">
                         Cargando información de la planta...
                     </p>
@@ -148,6 +127,7 @@ function CuidadosPlanta() {
         );
     }
 
+
     return (
         <main className="min-h-screen bg-[#F8F6F1] font-serif">
 
@@ -159,19 +139,10 @@ function CuidadosPlanta() {
                     {/* fotografía */}
                     <div className="w-full lg:mt-[140px] lg:w-[52%] lg:shrink-0">
 
-                        {imagenPlanta() ? (
-                            <img
-                                src={imagenPlanta()}
-                                alt={planta.nombre_comun || planta.common_name}
-                                className="h-[350px] w-full rounded-[25px] object-cover shadow-[1px_3px_6px_#555] sm:h-[480px] lg:h-[555px] lg:rounded-[30px]"
-                            />
-                        ) : (
-                            <div className="flex h-[350px] items-center justify-center rounded-[25px] bg-[#E9EDE4] text-[#718568] sm:h-[480px] lg:h-[555px]">
-                                Sin imagen disponible
-                            </div>
-                        )}
+                        <GaleriaPlanta key={planta.id} planta={planta} />
 
                     </div>
+
                     {/* tarjeta de información */}
                     <aside className="relative w-full rounded-[20px] border border-[#D0D0D0] bg-[#F8F6F1] px-6 py-10 shadow-[0_4px_10px_rgba(0,0,0,0.08)] sm:px-12 lg:min-h-[720px] lg:w-[48%] lg:shrink-0 lg:px-[7%] lg:py-[75px]">
 
@@ -185,7 +156,7 @@ function CuidadosPlanta() {
                             <img
                                 src={atras}
                                 alt="Regresar"
-                                className="h-[60px] w-[60px] cursor-pointer object-contain transition-transform duration-300 hover:scale-110"
+                                className="h-[60px] w-[60px] cursor-pointer object-contain transition-all duration-300 ease-in-out hover:scale-110 hover:-translate-x-1"
                             />
                         </button>
 
@@ -213,10 +184,10 @@ function CuidadosPlanta() {
                             </div>
 
                             {/* cuadros de cuidados */}
-                            <div className="flex w-full flex-wrap justify-center gap-5">
+                            <div className="grid w-full grid-cols-2 gap-5">
 
                                 {/* riego */}
-                                <div className="flex h-[180px] w-[215px] flex-none flex-col items-center justify-start gap-2.5 rounded-[20px] border-[3.5px] border-[#adadad] px-2 pt-2.5 shadow-[1px_3px_rgba(173,173,173,0.214)] transition-all duration-300 hover:-translate-y-[3px] hover:shadow-[0_6px_16px_rgba(0,0,0,0.12)]">
+                                <div className="flex min-h-[180px] min-w-0 w-full flex-col items-center justify-start gap-2.5 rounded-[20px] border-2 border-[#adadad] px-2 py-2.5 shadow-[1px_3px_rgba(173,173,173,0.214)] transition-all duration-300 hover:-translate-y-[3px] hover:shadow-[0_6px_16px_rgba(0,0,0,0.12)]">
 
                                     <p className="font-sans text-[#717171]">
                                         <b>Riego</b>
@@ -233,7 +204,7 @@ function CuidadosPlanta() {
                                 </div>
 
                                 {/* luz */}
-                                <div className="flex h-[180px] w-[220px] flex-none flex-col items-center justify-start gap-2.5 rounded-[20px] border-[3.5px] border-[#adadad] px-2 pt-2.5 shadow-[1px_3px_rgba(173,173,173,0.214)] transition-all duration-300 hover:-translate-y-[3px] hover:shadow-[0_6px_16px_rgba(0,0,0,0.12)]">
+                                <div className="flex min-h-[180px] min-w-0 w-full flex-col items-center justify-start gap-2.5 rounded-[20px] border-2 border-[#adadad] px-2 py-2.5 shadow-[1px_3px_rgba(173,173,173,0.214)] transition-all duration-300 hover:-translate-y-[3px] hover:shadow-[0_6px_16px_rgba(0,0,0,0.12)]">
 
                                     <p className="font-sans text-[#717171]">
                                         <b>Luz</b>
@@ -250,7 +221,7 @@ function CuidadosPlanta() {
                                 </div>
 
                                 {/* temperatura */}
-                                <div className="flex h-[180px] w-[220px] flex-none flex-col items-center justify-start gap-2.5 rounded-[20px] border-[3.5px] border-[#adadad] px-2 pt-2.5 shadow-[1px_3px_rgba(173,173,173,0.214)] transition-all duration-300 hover:-translate-y-[3px] hover:shadow-[0_6px_16px_rgba(0,0,0,0.12)]">
+                                <div className="flex min-h-[180px] min-w-0 w-full flex-col items-center justify-start gap-2.5 rounded-[20px] border-2 border-[#adadad] px-2 py-2.5 shadow-[1px_3px_rgba(173,173,173,0.214)] transition-all duration-300 hover:-translate-y-[3px] hover:shadow-[0_6px_16px_rgba(0,0,0,0.12)]">
 
                                     <p className="font-sans text-[#717171]">
                                         <b>Temperatura</b>
@@ -267,7 +238,7 @@ function CuidadosPlanta() {
                                 </div>
 
                                 {/* fertilización */}
-                                <div className="flex h-[180px] w-[220px] flex-none flex-col items-center justify-start gap-2.5 rounded-[20px] border-[3.5px] border-[#adadad] px-2 pt-2.5 shadow-[1px_3px_rgba(173,173,173,0.214)] transition-all duration-300 hover:-translate-y-[3px] hover:shadow-[0_6px_16px_rgba(0,0,0,0.12)]">
+                                <div className="flex min-h-[180px] min-w-0 w-full flex-col items-center justify-start gap-2.5 rounded-[20px] border-2 border-[#adadad] px-2 py-2.5 shadow-[1px_3px_rgba(173,173,173,0.214)] transition-all duration-300 hover:-translate-y-[3px] hover:shadow-[0_6px_16px_rgba(0,0,0,0.12)]">
 
                                     <p className="font-sans text-[#717171]">
                                         <b>Fertilización</b>
@@ -293,8 +264,8 @@ function CuidadosPlanta() {
                 </div>
 
             </section>
-
         </main>
     );
 }
+
 export default CuidadosPlanta;

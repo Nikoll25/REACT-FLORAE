@@ -14,14 +14,22 @@ import Notificaciones from "./Notificaciones";
 import GestionCuenta from "./GestionCuenta";
 import PagosSuscripciones from "./PagosSuscripciones";
 import perfil from "../../assets/perfil.png";
-import fondoPerfil from "../../assets/fondoPerfil.png";
+import fondoPerfil from "../../assets/fondoPerfil2.png";
 import macetaPerfil from "../../assets/macetaPerfil.png";
 
+const temas = {
+    perfil: { fondo: "#E5EEDC", tono: "#42663C" },
+    seguridad: { fondo: "#EFF5F8", tono: "#365C78" },
+    notificaciones: { fondo: "#FAF5E8", tono: "#76591F" },
+    pagos: { fondo: "#F3EFF7", tono: "#674D80" },
+    cuenta: { fondo: "#FAEFEC", tono: "#864D3C" },
+};
+
 const opciones = [
-    { id: "seguridad", titulo: "Seguridad", descripcion: "Cambia tu contraseña y protege tu cuenta.", icono: ShieldCheck },
-    { id: "notificaciones", titulo: "Notificaciones", descripcion: "Configura los recordatorios de tus plantas.", icono: Bell },
-    { id: "pagos", titulo: "Pagos y suscripciones", descripcion: "Consulta tus créditos, planes e historial de pagos.", icono: CreditCard },
-    { id: "cuenta", titulo: "Gestión de cuenta", descripcion: "Suspende o elimina tu cuenta.", icono: Settings },
+    { id: "seguridad", titulo: "Seguridad", descripcion: "Cambia tu contraseña y protege tu cuenta.", icono: ShieldCheck, estiloActivo: "bg-[#E5EFF5] text-[#365C78]" },
+    { id: "notificaciones", titulo: "Notificaciones", descripcion: "Configura los recordatorios de tus plantas.", icono: Bell, estiloActivo: "bg-[#F6EEDB] text-[#76591F]" },
+    { id: "pagos", titulo: "Pagos y suscripciones", descripcion: "Consulta tus créditos, planes e historial de pagos.", icono: CreditCard, estiloActivo: "bg-[#F0EAF5] text-[#674D80]" },
+    { id: "cuenta", titulo: "Gestión de cuenta", descripcion: "Suspende o elimina tu cuenta.", icono: Settings, estiloActivo: "bg-[#F7EAE5] text-[#864D3C]" },
 ];
 
 function Perfil() {
@@ -44,6 +52,8 @@ function Perfil() {
     const [email, setEmail] = useState("");
     const [guardando, setGuardando] = useState(false);
     const [cerrando, setCerrando] = useState(false);
+    const [confirmarSalida, setConfirmarSalida] = useState(false);
+    const [errorSalida, setErrorSalida] = useState("");
     const [error, setError] = useState("");
     const [mensaje, setMensaje] = useState("");
     const verificacionIniciada = useRef(false);
@@ -151,14 +161,20 @@ function Perfil() {
         }
     };
 
+    const abrirConfirmacionSalida = () => {
+        setErrorSalida("");
+        setConfirmarSalida(true);
+    };
+
     const cerrarSesion = async () => {
+        if (cerrando) return;
         setCerrando(true);
-        setError("");
+        setErrorSalida("");
         try {
             await logout();
             navigate("/login", { replace: true });
         } catch {
-            setError("No se pudo cerrar sesión correctamente.");
+            setErrorSalida("No se pudo cerrar sesión correctamente.");
         } finally {
             setCerrando(false);
         }
@@ -191,58 +207,58 @@ function Perfil() {
     }
 
     const estadisticas = [
-        { titulo: "Plantas en mi jardín", valor: cargandoPlantas ? "..." : errorPlantas ? "—" : Array.isArray(plantas) ? plantas.length : "—", icono: Flower2, color: "#E8EFE3" },
-        { titulo: "Cuidados de hoy", valor: cargandoResumen ? "..." : resumen?.cuidadosHoy ?? "—", icono: CalendarCheck2, color: "#EEF3E7" },
-        { titulo: "Cuidados pendientes", valor: cargandoResumen ? "..." : resumen?.cuidadosPendientes ?? "—", icono: Droplets, color: "#F2EDE0" },
-        { titulo: "Plagas activas", valor: cargandoResumen ? "..." : resumen?.plagasActivas ?? "—", icono: Bug, color: "#F8ECEA" },
+        { titulo: "Plantas en mi jardín", valor: cargandoPlantas ? "..." : errorPlantas ? "—" : Array.isArray(plantas) ? plantas.length : "—", icono: Flower2, color: "#F0F5EB", tono: "#42663C" },
+        { titulo: "Cuidados de hoy", valor: cargandoResumen ? "..." : resumen?.cuidadosHoy ?? "—", icono: CalendarCheck2, color: "#EFF5F8", tono: "#365C78" },
+        { titulo: "Cuidados pendientes", valor: cargandoResumen ? "..." : resumen?.cuidadosPendientes ?? "—", icono: Droplets, color: "#FAF5E8", tono: "#76591F" },
+        { titulo: "Plagas activas", valor: cargandoResumen ? "..." : resumen?.plagasActivas ?? "—", icono: Bug, color: "#FAEFEC", tono: "#864D3C" },
     ];
 
     return (
         <main
-            className="relative min-h-[calc(100vh-80px)] bg-[#F8F7F3] bg-cover bg-center bg-no-repeat text-[#303B30]"
-            style={{ backgroundImage: `url(${fondoPerfil})`, fontFamily: "'Nunito Sans', sans-serif" }}
+            className="relative min-h-[calc(100vh-80px)] bg-[#F8F7F3] text-[#303B30]"
+            style={{ fontFamily: "'Nunito Sans', sans-serif" }}
         >
             <div className="relative flex w-full flex-col lg:flex-row">
-                <aside className="w-full shrink-0 border-b border-[#DDE5D6] bg-[#F0F3E9]/90 px-4 py-5 backdrop-blur-sm lg:min-h-[calc(100vh-80px)] lg:w-[245px] lg:border-b-0 lg:border-r lg:px-3 lg:py-10 xl:w-[270px]">
-                    <div className="mb-5 hidden items-center gap-2 px-4 text-[#3F5D3F] lg:flex">
-                        <Sprout size={24} />
-                        <span className="text-xl font-bold">Mi espacio</span>
+                <aside className="w-full shrink-0 border-b border-[#D5DFCE] bg-[#F5F6F0] px-4 py-5 backdrop-blur-sm lg:min-h-[calc(100vh-80px)] lg:w-[245px] lg:border-b-0 lg:border-r lg:py-9 xl:w-[270px]">
+                    <div className="mb-7 hidden items-center gap-3 lg:flex">
+                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#E8EFE3] text-[#3F5D3F]"><Sprout size={27} /></div>
+                        <div><h2 className="font-['Lora'] text-xl font-bold text-[#254D2D]">Mi espacio</h2><p className="text-xs text-[#60785A]">Cultiva tu bienestar</p></div>
                     </div>
+                    <p className="mb-3 hidden border-t border-[#D5DFCE] px-2 pt-5 text-xs font-bold tracking-widest text-[#60785A] lg:block">MI CUENTA</p>
                     <nav aria-label="Opciones de la cuenta" className="flex gap-2 overflow-x-auto pb-1 lg:flex-col lg:overflow-visible">
-                        <button
-                            type="button"
-                            onClick={() => setSeccion("perfil")}
-                            className={`flex shrink-0 items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-bold transition lg:w-full lg:text-base ${seccion === "perfil" ? "bg-[#89AB78] text-white" : "text-[#3F5D3F] hover:bg-white/80"}`}
-                        >
-                            <UserRound size={21} /> Mi Perfil
-                        </button>
-                        {opciones.map(({ id, titulo, icono: Icono }) => (
-                            <button
-                                key={id}
-                                type="button"
-                                onClick={() => setSeccion(id)}
-                                className={`flex shrink-0 items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-semibold transition lg:w-full lg:text-base ${seccion === id ? "bg-[#89AB78] text-white" : "text-[#3F5D3F] hover:bg-white/80"}`}
-                            >
-                                <Icono size={21} className="shrink-0" /> {titulo}
+                        {[{ id: "perfil", titulo: "Mi Perfil", icono: UserRound, estiloActivo: "bg-[#E8EFE3] text-[#42663C]" }, ...opciones].map(({ id, titulo, icono: Icono, estiloActivo }) => (
+                            <button key={id} type="button" onClick={() => setSeccion(id)} aria-current={seccion === id ? "page" : undefined} className={`flex shrink-0 items-center gap-2.5 rounded-2xl p-2.5 text-left text-sm font-semibold transition lg:w-full ${seccion === id ? estiloActivo : "text-[#3F5D3F] hover:bg-white/70"}`}>
+                                <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${seccion === id ? "bg-white/65" : "bg-transparent"}`}><Icono size={20} /></span>
+                                <span className="flex-1">{titulo}</span>
+                                {seccion === id && <ChevronRight size={16} className="hidden shrink-0 lg:block" />}
                             </button>
                         ))}
+                        <div className="my-2 hidden border-t border-[#D5DFCE] lg:block" />
+                        <button type="button" onClick={abrirConfirmacionSalida} disabled={cerrando} className="flex shrink-0 items-center gap-2.5 rounded-2xl p-2.5 text-left text-sm font-semibold text-[#A65D42] transition hover:bg-[#F5E1D9] disabled:opacity-60 lg:w-full">
+                            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#FAEFEC]"><LogOut size={20} /></span> Cerrar sesión
+                        </button>
                     </nav>
-                    <img src={macetaPerfil} alt="" className="pointer-events-none mx-auto mt-14 hidden w-44 object-contain lg:block" />
+                    <div className="mt-8 hidden overflow-hidden rounded-[24px] border border-[#D1DFC6] bg-[#F0F3EA] px-3 pb-5 pt-3 text-center lg:block">
+                        <img src={macetaPerfil} alt="" className="pointer-events-none mx-auto h-32 w-full object-contain" />
+                        <p className="mt-2 font-['Lora'] text-sm font-bold text-[#3F5D3F]">Crece a tu propio ritmo</p>
+                        <p className="mt-2 text-xs leading-5 text-[#60785A]">Cada pequeño cuidado cuenta.</p>
+                    </div>
                 </aside>
 
-                <div className="relative min-w-0 flex-1 px-5 py-9 sm:px-8 lg:px-10 lg:py-10 xl:px-14">
+                <div className="relative min-w-0 flex-1 bg-cover bg-top bg-no-repeat px-5 py-9 sm:px-8 lg:px-10 lg:py-10 xl:px-14" style={{ backgroundImage: `linear-gradient(rgba(248,247,243,0.65), rgba(248,247,243,0.65)), url(${fondoPerfil})` }}>
                     {seccion === "perfil" ? (
                         <>
-                            <div className="mb-7">
-                                <div className="flex items-center gap-3">
-                                    <h1 className="text-4xl font-bold text-[#254D2D] sm:text-5xl">Mi Perfil</h1>
+                            <div className="relative mb-7 overflow-hidden">
+                                <Sprout aria-hidden="true" size={120} strokeWidth={0.8} className="pointer-events-none absolute -bottom-8 right-4 rotate-12 text-[#89AB78]/35" />
+                                <div className="relative flex items-center gap-3">
+                                    <h1 className="font-['Lora'] text-3xl font-bold text-[#254D2D] sm:text-4xl">Mi Perfil</h1>
                                     <Leaf size={32} className="rotate-45 text-[#89AB78]" strokeWidth={1.5} />
                                 </div>
                                 <p className="mt-3 text-[#626B60]">Conoce tu jardín y administra tu información personal.</p>
                             </div>
 
-                            <section className="relative mb-7 overflow-hidden rounded-[30px] border border-[#DFE9D7] bg-white/90 p-6 shadow-[0_8px_24px_rgba(57,82,44,0.08)] sm:p-8">
-                                <img src={macetaPerfil} alt="" className="pointer-events-none absolute -bottom-9 right-0 hidden h-44 w-44 object-contain opacity-30 md:block" />
+                            <section className="relative mb-7 overflow-hidden rounded-[30px] border border-[#D5DFC9] bg-white p-6 shadow-[0_8px_24px_rgba(57,82,44,0.08)] sm:p-8">
+                                <img src={macetaPerfil} alt="" className="pointer-events-none absolute -bottom-9 right-0 hidden h-44 w-44 object-contain opacity-15 md:block" />
                                 <div className="relative flex flex-col items-center gap-6 sm:flex-row">
                                     <div className="relative h-28 w-28 shrink-0 sm:h-32 sm:w-32">
                                         <img
@@ -281,15 +297,15 @@ function Perfil() {
                             {mensaje && <p role="status" className="mb-5 flex items-center gap-2 rounded-xl bg-[#E8EFE3] p-4 text-[#3F5D3F]"><CheckCircle2 size={20} />{mensaje}</p>}
 
                             <div className="mb-4 flex items-center justify-between gap-3">
-                                <h2 className="text-2xl font-bold text-[#254D2D]">Resumen de mi jardín</h2>
+                                <h2 className="font-['Lora'] text-2xl font-bold text-[#254D2D]">Resumen de mi jardín</h2>
                                 <button type="button" onClick={() => navigate("/jardin")} className="text-sm font-bold text-[#3F5D3F] hover:underline">Ver mi jardín</button>
                             </div>
                             <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                                {estadisticas.map(({ titulo, valor, icono: Icono, color }) => (
-                                    <div key={titulo} className="rounded-[24px] border border-white/80 bg-white/90 p-5 shadow-[0_6px_20px_rgba(57,82,44,0.07)]">
-                                        <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl text-[#3F5D3F]" style={{ backgroundColor: color }}><Icono size={25} /></div>
-                                        <p className="text-3xl font-bold text-[#254D2D]">{valor}</p>
-                                        <p className="mt-1 text-sm font-semibold text-[#626B60]">{titulo}</p>
+                                {estadisticas.map(({ titulo, valor, icono: Icono, color, tono }) => (
+                                    <div key={titulo} className="rounded-[24px] border border-[#E5E9DF] p-5 shadow-[0_6px_20px_rgba(57,82,44,0.07)]" style={{ backgroundColor: color }}>
+                                        <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-white/80" style={{ color: tono }}><Icono size={25} /></div>
+                                        <p className="text-3xl font-bold" style={{ color: tono }}>{valor}</p>
+                                        <p className="mt-1 text-sm font-semibold" style={{ color: "#626B60" }}>{titulo}</p>
                                     </div>
                                 ))}
                             </div>
@@ -300,19 +316,19 @@ function Perfil() {
                             )}
 
                             <div className="mb-5 flex items-center justify-between gap-3">
-                                <h2 className="text-2xl font-bold text-[#254D2D]">Configuración de mi cuenta</h2>
+                                <h2 className="font-['Lora'] text-2xl font-bold text-[#254D2D]">Configuración de mi cuenta</h2>
                             </div>
                             <div className="grid gap-4 md:grid-cols-2">
                                 {opciones.map(({ id, titulo, descripcion, icono: Icono }) => (
-                                    <button key={id} type="button" onClick={() => setSeccion(id)} className="flex min-h-[112px] items-center gap-4 rounded-[25px] border border-white/80 bg-white/90 p-5 text-left shadow-[0_6px_20px_rgba(57,82,44,0.07)] transition hover:border-[#C7D9BA] hover:shadow-lg">
-                                        <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#E8EFE3] text-[#3F5D3F]"><Icono size={27} /></span>
+                                    <button key={id} type="button" onClick={() => setSeccion(id)} className="flex min-h-[112px] items-center gap-4 rounded-[25px] border border-white/80 bg-[#FFFEFB]/95 p-5 text-left shadow-[0_6px_20px_rgba(57,82,44,0.07)] transition hover:border-[#C7D9BA] hover:shadow-lg">
+                                        <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl" style={{ backgroundColor: temas[id].fondo, color: temas[id].tono }}><Icono size={27} /></span>
                                         <span className="min-w-0 flex-1"><span className="block text-lg font-extrabold text-[#254D2D]">{titulo}</span><span className="mt-1 block text-sm text-[#6B7280]">{descripcion}</span></span>
-                                        <ChevronRight size={20} className="shrink-0 text-[#89AB78]" />
+                                        <ChevronRight size={20} className="shrink-0" style={{ color: temas[id].tono }} />
                                     </button>
                                 ))}
                             </div>
                             <div className="mx-auto mt-8 max-w-[520px]">
-                                <button type="button" onClick={cerrarSesion} disabled={cerrando} className="flex w-full items-center justify-center gap-3 rounded-2xl bg-[#CF7657] px-6 py-4 font-extrabold text-white transition hover:bg-[#B96246] disabled:opacity-60">
+                                <button type="button" onClick={abrirConfirmacionSalida} disabled={cerrando} className="flex w-full items-center justify-center gap-3 rounded-2xl bg-[#CF7657] px-6 py-4 font-extrabold text-white transition hover:bg-[#B96246] disabled:opacity-60">
                                     {cerrando ? <LoaderCircle size={21} className="animate-spin" /> : <LogOut size={21} />}
                                     {cerrando ? "Cerrando sesión..." : "Cerrar sesión"}
                                 </button>
@@ -378,6 +394,22 @@ function Perfil() {
                     {error && !modalAbierto && <p role="alert" className="mt-4 flex items-center gap-2 text-sm text-red-700"><AlertCircle size={18} />{error}</p>}
                 </div>
             </div>
+
+            {confirmarSalida && (
+                <div className="fixed inset-0 z-[110] flex items-center justify-center bg-[#1D3322]/55 p-4 backdrop-blur-sm" onMouseDown={(e) => { if (e.target === e.currentTarget && !cerrando) setConfirmarSalida(false); }} onKeyDown={(e) => { if (e.key === "Escape" && !cerrando) setConfirmarSalida(false); }}>
+                    <section role="dialog" aria-modal="true" aria-labelledby="titulo-salida" className="relative w-full max-w-[420px] rounded-[28px] bg-[#FFFEFB] p-7 text-center shadow-2xl">
+                        <button type="button" aria-label="Cerrar ventana" disabled={cerrando} onClick={() => setConfirmarSalida(false)} className="absolute right-4 top-4 rounded-full p-2 text-[#626B60] hover:bg-[#F5E1D9] disabled:opacity-50"><X size={22} /></button>
+                        <div className="mx-auto mb-5 flex h-[68px] w-[68px] items-center justify-center rounded-full bg-[#F5E1D9] text-[#B96246]"><LogOut size={30} /></div>
+                        <h2 id="titulo-salida" className="font-['Lora'] text-2xl font-bold text-[#254D2D]">¿Deseas cerrar sesión?</h2>
+                        <p className="mt-3 text-sm leading-6 text-[#626B60]">Tu jardín y tus actividades estarán aquí cuando regreses. ¿Estás seguro de que quieres salir de Florae?</p>
+                        {errorSalida && <p role="alert" className="mt-4 text-sm text-[#A34C4C]">{errorSalida}</p>}
+                        <div className="mt-7 flex gap-3">
+                            <button type="button" autoFocus disabled={cerrando} onClick={() => setConfirmarSalida(false)} className="flex-1 rounded-xl border border-[#DDE5D6] px-3 py-3 font-bold text-[#3F5D3F] hover:bg-[#EEF3E7] disabled:opacity-50">Cancelar</button>
+                            <button type="button" disabled={cerrando} onClick={cerrarSesion} className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#CF7657] px-3 py-3 font-bold text-white hover:bg-[#B96246] disabled:opacity-60">{cerrando ? <><LoaderCircle size={18} className="animate-spin" /> Saliendo...</> : "Cerrar sesión"}</button>
+                        </div>
+                    </section>
+                </div>
+            )}
 
             {modalAbierto && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#1D3322]/55 p-4" onMouseDown={(e) => { if (e.target === e.currentTarget && !guardando) setModalAbierto(false); }}>

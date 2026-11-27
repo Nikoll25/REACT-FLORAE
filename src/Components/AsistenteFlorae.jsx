@@ -158,9 +158,9 @@ function ChatFlorae({ token }) {
         <section
           role="dialog"
           aria-label="Asistente Florae"
-          className="mb-4 flex h-[min(600px,calc(100dvh-125px))] w-[calc(100vw-40px)] max-w-[390px] flex-col overflow-hidden rounded-[24px] border border-[#DCE7D5] bg-white shadow-[0_15px_50px_rgba(47,75,47,0.22)]"
+          className="mb-4 flex h-[min(600px,calc(100dvh-125px))] w-[calc(100vw-40px)] max-w-[390px] flex-col overflow-hidden rounded-[24px] border border-[#DDE4D8] bg-white shadow-[0_15px_50px_rgba(47,75,47,0.13)]"
         >
-          <header className="flex shrink-0 items-center gap-3 bg-[#E8EFE3] px-4 py-3">
+          <header className="flex shrink-0 items-center gap-3 bg-[#E9EEE5] px-4 py-3">
             <div className="flex h-[62px] w-[62px] shrink-0 items-center justify-center rounded-full bg-white/70">
               <img
                 src={imagenes[estado]}
@@ -191,11 +191,11 @@ function ChatFlorae({ token }) {
             </button>
           </header>
 
-          <div className="shrink-0 border-b border-[#DCE7D5] px-4 py-3" aria-live="polite">
+          <div className="shrink-0 border-b border-[#DDE4D8] px-4 py-3" aria-live="polite">
             {cargando ? (
               <div className="animate-pulse space-y-2" aria-label="Consultando créditos">
-                <div className="h-4 w-2/3 rounded bg-[#E8EFE3]" />
-                <div className="h-2 rounded bg-[#E8EFE3]" />
+                <div className="h-4 w-2/3 rounded bg-[#E9EEE5]" />
+                <div className="h-2 rounded bg-[#E9EEE5]" />
               </div>
             ) : errorCreditos ? (
               <div className="text-xs text-red-700">
@@ -208,8 +208,8 @@ function ChatFlorae({ token }) {
                   <span>Plan {creditos.plan}</span>
                   <span>{creditos.creditos_disponibles}/{creditos.creditos_totales} créditos</span>
                 </div>
-                <div className="my-2 h-2 overflow-hidden rounded-full bg-[#E8EFE3]">
-                  <div className="h-full rounded-full bg-[#89AB78] transition-all"
+                <div className="my-2 h-2 overflow-hidden rounded-full bg-[#E9EEE5]">
+                  <div className="h-full rounded-full bg-[#82977C] transition-all"
                     style={{ width: `${Math.min(100, Math.max(0, creditos.creditos_disponibles / (creditos.creditos_totales || 1) * 100))}%` }} />
                 </div>
                 <p className="text-[11px] text-[#63775E]">
@@ -229,17 +229,18 @@ function ChatFlorae({ token }) {
             {mensajes.map((mensaje) => (
               <div
                 key={mensaje.id}
-                className={`flex ${
+                className={`flex items-start gap-2 ${
                   mensaje.autor === "usuario"
                     ? "justify-end"
                     : "justify-start"
                 }`}
               >
+                {mensaje.autor === "florae" && <img src={feliz} alt="" className="h-7 w-7 shrink-0 rounded-full bg-[#E9EEE5] object-contain" />}
                 <div
-                  className={`max-w-[88%] whitespace-pre-wrap break-words rounded-[18px] px-4 py-3 text-sm leading-6 shadow-sm ${
+                  className={`min-w-0 max-w-[85%] whitespace-pre-wrap break-words rounded-[18px] px-4 py-3 text-sm leading-6 shadow-sm ${
                     mensaje.autor === "usuario"
-                      ? "rounded-br-[5px] bg-[#89AB78] text-white"
-                      : "rounded-bl-[5px] bg-white text-[#303B30]"
+                      ? "rounded-br-[5px] bg-[#E0E9D9] text-[#3F5D3F]"
+                      : "rounded-bl-[5px] border border-[#E6EAE1] bg-white text-[#303B30]"
                   }`}
                 >
                   {mensaje.autor === "florae" ? (
@@ -272,7 +273,7 @@ function ChatFlorae({ token }) {
                   {[0, 1, 2].map((indice) => (
                     <span
                       key={indice}
-                      className="h-2 w-2 animate-bounce rounded-full bg-[#89AB78]"
+                      className="h-2 w-2 animate-bounce rounded-full bg-[#82977C]"
                       style={{
                         animationDelay: `${indice * 160}ms`,
                       }}
@@ -305,14 +306,14 @@ function ChatFlorae({ token }) {
               placeholder={creditos?.puede_consultar === false ? "Sin créditos disponibles" : "Pregunta sobre tus plantas..."}
               aria-label="Escribe tu consulta"
               disabled={bloqueado}
-              className="min-w-0 flex-1 rounded-xl border border-[#DCE7D5] bg-[#F8F7F3] px-3 py-3 text-sm text-[#303B30] outline-none transition placeholder:text-[#889187] focus:border-[#89AB78] disabled:opacity-60"
+              className="min-w-0 flex-1 rounded-xl border border-[#DDE4D8] bg-[#F8F7F3] px-3 py-3 text-sm text-[#303B30] outline-none transition placeholder:text-[#889187] focus:border-[#82977C] disabled:opacity-60"
             />
 
             <button
               type="submit"
               disabled={!texto.trim() || bloqueado}
               aria-label="Enviar mensaje"
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#89AB78] text-white transition hover:bg-[#709261] disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#526B4D] text-white transition hover:bg-[#435A40] disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Send size={19} />
             </button>
@@ -333,7 +334,7 @@ function ChatFlorae({ token }) {
             abierto ? "Cerrar chat Florae" : "Abrir asistente Florae"
           }
           aria-expanded={abierto}
-          className="group relative flex h-[76px] w-[76px] items-center justify-center rounded-full border-[3px] border-white bg-[#E8EFE3] shadow-[0_7px_22px_rgba(47,75,47,0.28)] transition duration-300 hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3F5D3F]"
+          className="group relative flex h-[76px] w-[76px] items-center justify-center rounded-full border-[3px] border-white bg-[#E9EEE5] shadow-[0_7px_22px_rgba(47,75,47,0.18)] transition duration-300 hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3F5D3F]"
         >
           <img
             src={imagenes[estado]}

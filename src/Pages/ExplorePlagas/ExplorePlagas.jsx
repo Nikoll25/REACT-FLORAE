@@ -52,17 +52,17 @@ function ExplorarPlagas() {
 
     // Obtenemos la imagen de la plaga
     const imagenPlaga = (plaga) => {
-        const primeraImagen = plaga.imagenes?.[0];
+        const primeraImagen = plaga.imagenes?.find(imagen => imagen?.es_principal) || plaga.imagenes?.[0];
 
         const imagen =
-            plaga.image_plague?.image ||
-            plaga.imageplague?.image ||
             (typeof primeraImagen === "string"
                 ? primeraImagen
                 : primeraImagen?.image ||
                   primeraImagen?.imagen ||
                   primeraImagen?.url ||
                   primeraImagen?.ruta) ||
+            plaga.image_plague?.image ||
+            plaga.imageplague?.image ||
             plaga.image_url ||
             plaga.image ||
             plaga.imagen;

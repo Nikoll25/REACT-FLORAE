@@ -17,6 +17,8 @@ import {
     HeartPulse,
     Droplets,
     Sprout,
+    Sun,
+    Thermometer,
     CheckCircle2,
     Leaf,
     CalendarDays,
@@ -51,8 +53,19 @@ const fechaColombia = (fecha) => {
 };
 const nombreActividad = (actividad) =>
     actividad?.plant_care?.tipo || "Cuidado";
+const estilosHistorial = {
+    riego: { icono: Droplets, color: "#5287A6", fondo: "#E7F1F7" },
+    fertilizacion: { icono: Sprout, color: "#709261", fondo: "#E8EFE3" },
+    luz: { icono: Sun, color: "#B3954F", fondo: "#F7EED9" },
+    temperatura: { icono: Thermometer, color: "#B47E68", fondo: "#F8EDE8" },
+    general: { icono: Leaf, color: "#3F5D3F", fondo: "#EEF3E7" },
+};
 function VerMas() {
     const { id } = useParams();
+    return <DetalleJardin key={`${localStorage.getItem("token")}:${id}`} id={id} />;
+}
+
+function DetalleJardin({ id }) {
     const cargarPlantas = useJardinStore(
         (state) => state.cargarPlantas
     );
@@ -63,6 +76,10 @@ function VerMas() {
     const [plagasJardin, setPlagasJardin] = useState([]);
     const [tratamientosJardin, setTratamientosJardin] = useState([]);
     const [errorRelaciones, setErrorRelaciones] = useState("");
+    const [cargandoPlagas, setCargandoPlagas] = useState(true);
+    const [cargandoAplicaciones, setCargandoAplicaciones] = useState(true);
+    const [errorPlagas, setErrorPlagas] = useState(false);
+    const [errorAplicaciones, setErrorAplicaciones] = useState("");
     const [plagaTratamiento, setPlagaTratamiento] = useState(null);
     const [tratamientosDisponibles, setTratamientosDisponibles] = useState([]);
     const [guardandoTratamiento, setGuardandoTratamiento] = useState(false);
@@ -70,79 +87,67 @@ function VerMas() {
     const [errorTratamiento, setErrorTratamiento] = useState("");
     useEffect(() => {
         let activo = true;
+        const token = localStorage.getItem("token");
+        const vigente = () => activo && token === localStorage.getItem("token");
+        const extraerLista = (valor, claves) => {
+            if (Array.isArray(valor)) return valor;
+            for (const clave of claves) {
+                if (Array.isArray(valor?.[clave])) return valor[clave];
+                if (Array.isArray(valor?.data?.[clave])) return valor.data[clave];
+            }
+            return Array.isArray(valor?.data) ? valor.data : [];
+        };
+        setCargando(true);
+        setError("");
+        setErrorRelaciones("");
+        setErrorPlagas(false);
+        setErrorAplicaciones("");
+        setCargandoPlagas(true);
+        setCargandoAplicaciones(true);
+
+        // Consultamos las relaciones en paralelo con las actividades.
+        obtenerPlagasJardin().then((respuesta) => {
+            if (vigente()) setPlagasJardin(extraerLista(respuesta, ["plagas", "plagas_jardin", "registros"]));
+        }).catch(() => {
+            if (vigente()) {
+                setErrorPlagas(true);
+                setErrorRelaciones("No se pudieron consultar las plagas del jardín.");
+            }
+        }).finally(() => {
+            if (vigente()) setCargandoPlagas(false);
+        });
+        obtenerTratamientosJardin().then((respuesta) => {
+            if (vigente()) setTratamientosJardin(extraerLista(respuesta, ["aplicaciones"]));
+        }).catch(() => {
+            if (vigente()) setErrorAplicaciones("No se pudieron consultar los tratamientos del jardín.");
+        }).finally(() => {
+            if (vigente()) setCargandoAplicaciones(false);
+        });
+
         const cargarInformacion = async () => {
-            setCargando(true);
-            setError("");
             try {
-                // Consultamos las actividades del ejemplar.
-                // El ID es de planta_jardins, no de plants.
                 const respuesta = await obtenerActividadesPlanta(id);
-                // Buscamos el ejemplar en Zustand.
-                let registroJardin = useJardinStore
-                    .getState()
-                    .plantas
-                    .find(
-                        (item) => String(item.id) === String(id)
-                    );
-                // Si el usuario recargó la página,
-                // recuperamos las plantas desde Laravel.
+                if (!vigente()) return;
+                const estado = useJardinStore.getState();
+                let registroJardin = estado.tokenJardin === token
+                    ? estado.plantas.find((item) => String(item.id) === String(id))
+                    : null;
                 if (!registroJardin) {
-                    await cargarPlantas();
-                    const lista = useJardinStore.getState().plantas;
-                    registroJardin = lista.find(
-                        (item) => String(item.id) === String(id)
-                    );
+                    // Recuperamos el catálogo completo si no está en memoria.
+                    const lista = await cargarPlantas();
+                    registroJardin = lista.find((item) => String(item.id) === String(id));
                 }
-                if (!activo) return;
-                // La respuesta de actividades ya incluye
-                // los datos principales de la planta.
-                setRegistro(
-                    registroJardin || respuesta.planta
-                );
+                if (!vigente()) return;
+                setRegistro(registroJardin || respuesta.planta);
                 setActividades(respuesta);
-                // Las relaciones del jardín se consultan por separado.
-                const resultados = await Promise.allSettled([
-                    obtenerPlagasJardin(),
-                    obtenerTratamientosJardin(),
-                ]);
-                if (!activo) return;
-                const extraerLista = (valor, claves) => {
-                    if (Array.isArray(valor)) return valor;
-                    for (const clave of claves) {
-                        if (Array.isArray(valor?.[clave])) return valor[clave];
-                        if (Array.isArray(valor?.data?.[clave])) return valor.data[clave];
-                    }
-                    return Array.isArray(valor?.data) ? valor.data : [];
-                };
-                if (resultados[0].status === "fulfilled") {
-                    setPlagasJardin(extraerLista(resultados[0].value, ["plagas", "plagas_jardin", "registros"]));
-                } else {
-                    setErrorRelaciones("No se pudieron consultar las plagas del jardín.");
-                }
-                if (resultados[1].status === "fulfilled") {
-                    setTratamientosJardin(resultados[1].value.aplicaciones || []);
-                } else {
-                    setErrorRelaciones((previo) =>
-                        [previo, "No se pudieron consultar los tratamientos del jardín."].filter(Boolean).join(" ")
-                    );
-                }
             } catch (error) {
-                if (!activo) return;
-                console.error(
-                    "Error al cargar VerMás:",
-                    error
-                );
-                setError(error.message);
+                if (vigente()) setError(error.message);
             } finally {
-                if (activo) {
-                    setCargando(false);
-                }
+                if (vigente()) setCargando(false);
             }
         };
         cargarInformacion();
-        return () => {
-            activo = false;
-        };
+        return () => { activo = false; };
     }, [id, cargarPlantas]);
     if (cargando) {
         return (
@@ -249,7 +254,10 @@ function VerMas() {
     const tienePlagas = plagasActivas.length > 0;
     const tieneCuidadosVencidos = vencidas.length > 0;
 
-    const estadoSalud = tienePlagas
+    const saludSinConfirmar = cargandoPlagas || errorPlagas;
+    const estadoSalud = saludSinConfirmar
+        ? (cargandoPlagas ? "Consultando estado..." : "Estado no disponible")
+        : tienePlagas
         ? "Enferma"
         : tieneCuidadosVencidos
             ? `Le falta ${nombresVencidos.join(" y ")}`
@@ -258,7 +266,9 @@ function VerMas() {
     const textoPlagas = `${plagasActivas.length} ${plagasActivas.length === 1 ? "plaga activa" : "plagas activas"}`;
     const textoCuidados = `${vencidas.length} ${vencidas.length === 1 ? "cuidado vencido" : "cuidados vencidos"}`;
 
-    const mensajeSalud = tienePlagas
+    const mensajeSalud = saludSinConfirmar
+        ? (cargandoPlagas ? "Estamos consultando las plagas de tu planta." : "No se pudo confirmar el estado de salud.")
+        : tienePlagas
         ? tieneCuidadosVencidos
             ? `Tu planta tiene ${textoPlagas} y ${textoCuidados}.`
             : `Tu planta tiene ${textoPlagas}.`
@@ -266,7 +276,9 @@ function VerMas() {
             ? `Tienes ${textoCuidados}.`
             : "Tu planta tiene sus cuidados al día.";
 
-    const colorSalud = tienePlagas
+    const colorSalud = saludSinConfirmar
+        ? { fondo: "bg-[#F0F1ED]", icono: "text-[#777777]", titulo: "text-[#777777]", mensaje: "text-[#777777]" }
+        : tienePlagas
         ? { fondo: "bg-[#FDECEC]", icono: "text-[#C86D6D]", titulo: "text-[#B85353]", mensaje: "text-[#A45F5F]" }
         : tieneCuidadosVencidos
             ? { fondo: "bg-[#FFF1E7]", icono: "text-[#C58451]", titulo: "text-[#B77943]", mensaje: "text-[#9A7657]" }
@@ -405,6 +417,8 @@ function VerMas() {
                         {urlImagen ? (
                             <img
                                 src={urlImagen}
+                                fetchPriority="high"
+                                decoding="async"
                                 alt={nombre}
                                 className="h-[280px] w-full object-cover sm:h-[390px]"
                             />
@@ -468,7 +482,7 @@ function VerMas() {
                                 </div>
                             </div>
                             <div className={`mt-5 flex items-center gap-2 text-sm ${colorSalud.mensaje}`}>
-                                {tienePlagas || tieneCuidadosVencidos ? (
+                                {saludSinConfirmar || tienePlagas || tieneCuidadosVencidos ? (
                                     <AlertCircle size={17} />
                                 ) : (
                                     <CheckCircle2 size={17} />
@@ -552,36 +566,22 @@ function VerMas() {
                         </h2>
                     </div>
                     {historial.length > 0 ? (
-                        <div className="relative ml-3 space-y-8 border-l-2 border-[#DCE6D5] pl-7">
-                            {historial.map((actividad) => (
-                                <div
-                                    key={actividad.id}
-                                    className="relative"
-                                >
-                                    <div className="absolute -left-[37px] top-0 flex h-7 w-7 items-center justify-center rounded-full border-4 border-white bg-[#89AB78]">
-                                        {normalizar(nombreActividad(actividad)) === "riego" ? (
-                                            <Droplets
-                                                size={12}
-                                                className="text-white"
-                                            />
-                                        ) : (
-                                            <Sprout
-                                                size={12}
-                                                className="text-white"
-                                            />
-                                        )}
+                        <div className="relative ml-5 space-y-8 border-l-2 border-[#DCE6D5] pl-6">
+                            {historial.map((actividad) => {
+                                const tipo = normalizar(nombreActividad(actividad));
+                                const estilo = estilosHistorial[tipo] || estilosHistorial.general;
+                                const Icono = estilo.icono;
+                                return (
+                                    <div key={actividad.id} className="relative min-h-[48px]">
+                                        <div className="absolute -left-[44px] top-0 flex h-10 w-10 items-center justify-center rounded-full border-[3px] border-white shadow-sm" style={{ backgroundColor: estilo.fondo, color: estilo.color }}>
+                                            <Icono size={19} />
+                                        </div>
+                                        <p className="text-xs font-bold uppercase tracking-wider" style={{ color: estilo.color }}>{fechaColombia(actividad.fecha_realizacion)}</p>
+                                        <h3 className="mt-1 font-semibold" style={{ color: estilo.color }}>{nombreActividad(actividad)} {tipo === "fertilizacion" || tipo === "luz" || tipo === "temperatura" ? "completada" : "completado"}</h3>
+                                        <p className="mt-1 text-sm text-[#858B7D]">{actividad.plant_care?.descripcion}</p>
                                     </div>
-                                    <p className="text-xs font-bold uppercase tracking-wider text-[#89AB78]">
-                                        {fechaColombia(actividad.fecha_realizacion)}
-                                    </p>
-                                    <h3 className="mt-1 font-semibold text-[#3F5D3F]">
-                                        {nombreActividad(actividad)} completado
-                                    </h3>
-                                    <p className="mt-1 text-sm text-[#858B7D]">
-                                        {actividad.plant_care?.descripcion}
-                                    </p>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     ) : (
                         <div className="rounded-2xl bg-[#F8F9F6] px-5 py-10 text-center">
@@ -595,17 +595,27 @@ function VerMas() {
                         </div>
                     )}
                 </section>
-                <SeccionPlagas
-                    plagas={plagasPlanta}
-                    onActualizar={setPlagasJardin}
-                    onAgregarTratamiento={abrirTratamientos}
-                    errorExterno={errorRelaciones}
-                />
-                <SeccionTratamientos
-                    tratamientos={tratamientosPlanta}
-                    plagas={plagasPlanta}
-                    onAgregarTratamiento={abrirTratamientos}
-                />
+                {cargandoPlagas ? (
+                    <div aria-busy="true" className="mb-12 h-40 animate-pulse rounded-[24px] bg-[#E8EFE3]" />
+                ) : (
+                    <SeccionPlagas
+                        plagas={plagasPlanta}
+                        onActualizar={setPlagasJardin}
+                        onAgregarTratamiento={abrirTratamientos}
+                        errorExterno={errorRelaciones}
+                    />
+                )}
+                {cargandoAplicaciones || cargandoPlagas ? (
+                    <div aria-busy="true" className="mb-12 h-40 animate-pulse rounded-[24px] bg-[#E8EFE3]" />
+                ) : errorAplicaciones ? (
+                    <p role="alert" className="mb-12 rounded-2xl bg-white p-5 text-sm text-[#B85353]">{errorAplicaciones}</p>
+                ) : (
+                    <SeccionTratamientos
+                        tratamientos={tratamientosPlanta}
+                        plagas={plagasPlanta}
+                        onAgregarTratamiento={abrirTratamientos}
+                    />
+                )}
             </div>
             <ModalAgregarTratamiento
                 plaga={plagaTratamiento}

@@ -1,102 +1,141 @@
-
 import { create } from "zustand";
-
 import {
     obtenerPlantasJardin,
     agregarPlantaJardin,
     eliminarPlantaJardin,
 } from "../services/api";
 
+let solicitud = null;
+let version = 0;
+
+const tokenActual = () => localStorage.getItem("token");
+
 export const useJardinStore = create((set, get) => ({
-
-    // Plantas del jardín
     plantas: [],
-
-    // Estado de carga
     cargando: false,
-
-    // Mensajes de error
     error: null,
+    tokenJardin: null,
+    cargado: false,
 
-    // ======================================
-    // OBTENER PLANTAS
-    // ======================================
-    cargarPlantas: async () => {
+    // Reutilizamos las plantas mientras se actualiza el jardín
+    cargarPlantas: () => {
+        const token = tokenActual();
+
+        if (get().tokenJardin !== token) {
+            get().limpiarJardin();
+        }
+
+        // Evitamos solicitudes simultáneas duplicadas
+        if (solicitud?.token === token) {
+            return solicitud.promesa;
+        }
+
+        const actual = ++version;
 
         set({
+            tokenJardin: token,
             cargando: true,
             error: null,
         });
 
-        try {
-            const datos = await obtenerPlantasJardin();
+        const vigente = () =>
+            actual === version && token === tokenActual();
 
-            // Admitimos una lista directa o una respuesta
-            // que contenga la lista en "plantas" o "data".
-const plantas = Array.isArray(datos)
-    ? datos
-    : Array.isArray(datos.jardin?.plantas_jardin)
-        ? datos.jardin.plantas_jardin
-        : Array.isArray(datos.plantas)
-            ? datos.plantas
-            : Array.isArray(datos.data)
-                ? datos.data
-                : [];
+        const promesa = Promise.resolve().then(async () => {
+            try {
+                const datos = await obtenerPlantasJardin();
 
-            set({
-                plantas,
-                cargando: false,
-            });
+                const plantas = Array.isArray(datos)
+                    ? datos
+                    : Array.isArray(datos?.jardin?.plantas_jardin)
+                        ? datos.jardin.plantas_jardin
+                        : Array.isArray(datos?.plantas)
+                            ? datos.plantas
+                            : Array.isArray(datos?.data)
+                                ? datos.data
+                                : [];
 
-            return plantas;
+                if (!vigente()) return [];
 
-        } catch (error) {
+                set({
+                    plantas,
+                    cargando: false,
+                    cargado: true,
+                });
 
-            set({
-                plantas: [],
-                error: error.message,
-                cargando: false,
-            });
+                return plantas;
+            } catch (error) {
+                if (vigente()) {
+                    set({
+                        error: error.message,
+                        cargando: false,
+                    });
+                }
 
-            throw error;
-        }
+                throw error;
+            } finally {
+                if (solicitud?.version === actual) {
+                    solicitud = null;
+                }
+            }
+        });
+
+        solicitud = {
+            token,
+            version: actual,
+            promesa,
+        };
+
+        return promesa;
     },
 
-    // ======================================
-    // AGREGAR PLANTA
-    // ======================================
+    // Agregamos la planta y actualizamos el listado
     agregarPlanta: async (plantaId) => {
-
+        const token = tokenActual();
         const datos = await agregarPlantaJardin(plantaId);
 
-        // Volvemos a consultar para obtener
-        // las relaciones y actividades actualizadas
-        await get().cargarPlantas();
+        if (token === tokenActual()) {
+            version++;
+            solicitud = null;
+            await get().cargarPlantas();
+        }
 
         return datos;
     },
 
-    // ======================================
-    // ELIMINAR PLANTA
-    // ======================================
+    // Eliminamos la planta sin volver a consultar todo el jardín
     eliminarPlanta: async (plantaJardinId) => {
+        const token = tokenActual();
 
         await eliminarPlantaJardin(plantaJardinId);
 
+        if (
+            token !== tokenActual() ||
+            get().tokenJardin !== token
+        ) return;
+
+        version++;
+        solicitud = null;
+
         set((state) => ({
             plantas: state.plantas.filter(
-                (planta) => planta.id !== plantaJardinId
+                (planta) => String(planta.id) !== String(plantaJardinId)
             ),
+            cargando: false,
         }));
     },
 
-    // Limpiar los datos al cerrar sesión
+    // Limpiamos los datos de la sesión anterior
     limpiarJardin: () => {
+        version++;
+        solicitud = null;
+
         set({
             plantas: [],
             cargando: false,
             error: null,
+            tokenJardin: null,
+            cargado: false,
         });
     },
-
 }));

@@ -1,106 +1,77 @@
-
 import { Link } from "react-router-dom";
+import { Leaf, ArrowUpRight } from "lucide-react";
 import logo from "../assets/logo.png";
 
+const enlaces = [
+    { ruta: "/explorar", nombre: "Explorar plantas" },
+    { ruta: "/jardin", nombre: "Mi jardín" },
+    { ruta: "/explorar/plagas", nombre: "Explorar plagas" },
+    { ruta: "/calendario", nombre: "Calendario" },
+    { ruta: "/perfil", nombre: "Mi perfil" },
+    { ruta: "/perfil?seccion=pagos", nombre: "Suscripciones" },
+];
+
 const Footer = () => {
-  return (
-    <footer className="w-full shrink-0 border-t-[4px] border-[#A5B98D] bg-[#647D59] text-white">
+    return (
+        <footer className="w-full shrink-0 border-t-[3px] border-[#A6B49B] bg-[#60755B] font-nunito text-[#DFE7D9]">
+            <div className="mx-auto max-w-[1250px] px-6 pb-3 pt-6 sm:px-10">
 
-      <div className="mx-auto max-w-[1400px] px-8 py-9">
+                <div className="grid items-center gap-6 sm:grid-cols-2 lg:grid-cols-[1.3fr_1.3fr_0.8fr] lg:gap-8">
 
-        <div className="grid grid-cols-1 gap-9 md:grid-cols-3">
+                    {/* Identidad de Florae */}
+                    <div className="flex flex-col items-center text-center sm:items-start sm:text-left">
+                        <Link to="/jardin">
+                            <img src={logo} alt="Florae" className="mb-2 w-[115px] object-contain" />
+                        </Link>
+                        <h2 className="font-lora text-[17px] font-medium italic leading-snug text-[#F8F7F3]">
+                            Cuidamos lo que te hace florecer.
+                        </h2>
+                        <p className="mt-2 max-w-[280px] text-xs leading-5">
+                            Naturaleza y tecnología para cultivar una vida más verde.
+                        </p>
+                    </div>
 
-          {/* identidad de florae */}
-          <div className="flex flex-col items-center md:items-start">
+                    {/* Navegación */}
+                    <div className="text-center sm:text-left lg:border-l lg:border-white/15 lg:pl-8">
+                        <h3 className="mb-3 font-lora text-base font-semibold text-[#F8F7F3]">
+                            Explora y cultiva
+                        </h3>
+                        <nav aria-label="Navegación del pie de página" className="grid grid-cols-2 gap-x-5 gap-y-2">
+                            {enlaces.map(({ ruta, nombre }) => (
+                                <Link key={ruta} to={ruta} className="text-[13px] leading-5 transition hover:text-white hover:underline hover:underline-offset-4">
+                                    {nombre}
+                                </Link>
+                            ))}
+                        </nav>
+                    </div>
 
-            <img
-              src={logo}
-              alt="Florae"
-              className="mb-3 w-[130px] object-contain"
-            />
+                    {/* Sobre nosotros */}
+                    <div className="flex flex-col items-center text-center sm:col-span-2 lg:col-span-1 lg:items-start lg:border-l lg:border-white/15 lg:pl-8 lg:text-left">
+                        <h3 className="mb-3 font-lora text-base font-semibold text-[#F8F7F3]">
+                            Conoce Florae
+                        </h3>
+                        <Link to="/sobre-nosotros" className="flex items-center gap-1.5 text-[13px] transition hover:text-white hover:underline hover:underline-offset-4">
+                            Sobre nosotros <ArrowUpRight size={13} />
+                        </Link>
+                        <p className="mt-2 max-w-[190px] font-lora text-xs italic leading-5 text-[#D1DECA]">
+                            Nuestra esencia es crecer contigo.
+                        </p>
+                    </div>
+                </div>
 
-            <p className="max-w-xs text-center text-sm leading-6 text-[#F0F2E9] md:text-left">
-              Un espacio para descubrir, cuidar y disfrutar
-              el mundo de las plantas.
-            </p>
-
-            <p className="mt-4 text-xs font-semibold uppercase tracking-[2px] text-[#D4E2C5]">
-              Cultiva, aprende y florece.
-            </p>
-
-          </div>
-
-          {/* navegación */}
-          <div className="flex flex-col items-center">
-
-            <h3 className="mb-5 text-sm font-bold uppercase tracking-wider text-white">
-              Explora Florae
-            </h3>
-
-            <div className="flex flex-col items-center gap-3 text-sm text-[#F0F2E9]">
-
-              <Link to="/jardin" className="transition hover:translate-x-1 hover:text-[#D4E2C5]">
-                Mi jardín
-              </Link>
-
-              <Link to="/explorar" className="transition hover:translate-x-1 hover:text-[#D4E2C5]">
-                Explorar plantas
-              </Link>
-
-              <Link to="/explorarplaga" className="transition hover:translate-x-1 hover:text-[#D4E2C5]">
-                Identificar plagas
-              </Link>
-
-              <Link to="/calendario" className="transition hover:translate-x-1 hover:text-[#D4E2C5]">
-                Calendario de cuidados
-              </Link>
-
+                {/* Derechos de autor */}
+                <div className="mt-5 flex flex-col items-center justify-between gap-2 border-t border-white/15 pt-3 text-center sm:flex-row">
+                    <p className="text-[11px]">
+                        © {new Date().getFullYear()} Florae. Todos los derechos reservados.
+                    </p>
+                    <p className="flex items-center gap-1.5 text-[11px]">
+                        <Leaf size={13} strokeWidth={1.5} />
+                        Inspirado en la naturaleza.
+                    </p>
+                </div>
             </div>
-
-          </div>
-
-          {/* mensaje */}
-          <div className="flex flex-col items-center text-center md:items-end md:text-right">
-
-            <h3 className="mb-3 text-base font-semibold text-white">
-              Un jardín más saludable
-            </h3>
-
-            <p className="max-w-xs text-sm leading-6 text-[#F0F2E9]">
-              Cada planta necesita atención y dedicación.
-              Florae te acompaña en cada etapa de su crecimiento.
-            </p>
-
-            <div className="mt-4 flex items-center gap-2 text-xl text-[#D4E2C5]">
-              <span>🌱</span>
-              <span>🌿</span>
-              <span>🍃</span>
-            </div>
-
-          </div>
-
-        </div>
-
-        {/* separador */}
-        <div className="my-8 h-px w-full bg-[#8DA17E]"></div>
-
-        {/* derechos de autor */}
-        <div className="flex flex-col items-center justify-between gap-3 text-center sm:flex-row">
-
-          <p className="text-xs text-[#E5EBDD]">
-            © {new Date().getFullYear()} Florae. Todos los derechos reservados.
-          </p>
-
-          <p className="text-xs font-medium text-[#D4E2C5]">
-            Hecho con amor por la naturaleza.
-          </p>
-
-        </div>
-
-      </div>
-
-    </footer>
-  );
+        </footer>
+    );
 };
 
 export default Footer;

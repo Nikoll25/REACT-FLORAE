@@ -124,14 +124,14 @@ function ModalContratarPlan({
             >
                 <div className="mb-6 flex items-start gap-4">
 
-                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#E8EFE3] text-[#3F5D3F]">
+                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#F4EEDF] text-[#96763C]">
                         <Crown size={30} />
                     </div>
 
                     <div className="flex-1">
                         <h2
                             id="titulo-contratacion"
-                            className="text-2xl font-bold text-[#254D2D]"
+                            className="font-lora text-2xl font-bold text-[#3F5D3F]"
                         >
                             {esRenovacion ? "Renovar" : "Contratar"}{" "}
                             {plan.nombre}
@@ -147,17 +147,17 @@ function ModalContratarPlan({
                         aria-label="Cerrar modal"
                         disabled={procesando}
                         onClick={onCerrar}
-                        className="rounded-full p-2 text-[#626B60] hover:bg-[#EEF3E7] disabled:opacity-50"
+                        className="rounded-full p-2 text-[#626B60] hover:bg-[#EDF1E9] disabled:opacity-50"
                     >
                         <X size={23} />
                     </button>
 
                 </div>
 
-                <div className="mb-6 rounded-2xl border border-[#DFE9D7] bg-[#F0F5EB] p-5">
+                <div className="mb-6 rounded-2xl border border-[#E5DDCB] bg-[#FAF8F2] p-5">
 
                     <div className="mb-4">
-                        <span className="text-3xl font-bold text-[#254D2D]">
+                        <span className="text-3xl font-bold text-[#3F5D3F]">
                             {formatearPrecio(plan.precio)}
                         </span>
 
@@ -179,7 +179,7 @@ function ModalContratarPlan({
                             >
                                 <CheckCircle2
                                     size={19}
-                                    className="shrink-0 text-[#89AB78]"
+                                    className="shrink-0 text-[#82977C]"
                                 />
 
                                 {beneficio}
@@ -193,7 +193,7 @@ function ModalContratarPlan({
 
                     <fieldset disabled={procesando}>
 
-                        <legend className="mb-4 font-bold text-[#254D2D]">
+                        <legend className="mb-4 font-bold text-[#3F5D3F]">
                             Selecciona tu método de pago
                         </legend>
 
@@ -204,8 +204,8 @@ function ModalContratarPlan({
                                     key={id}
                                     className={`flex cursor-pointer items-center gap-3 rounded-xl border p-4 transition ${
                                         metodoPago === id
-                                            ? "border-[#89AB78] bg-[#EEF3E7]"
-                                            : "border-[#DFE9D7] bg-white hover:bg-[#F5F7F1]"
+                                            ? "border-[#82977C] bg-[#EDF1E9]"
+                                            : "border-[#DDE4D8] bg-white hover:bg-[#F5F7F2]"
                                     }`}
                                 >
                                     <Icono
@@ -226,7 +226,7 @@ function ModalContratarPlan({
                                             setMetodoPago(id);
                                             setError("");
                                         }}
-                                        className="h-5 w-5 accent-[#89AB78]"
+                                        className="h-5 w-5 accent-[#82977C]"
                                     />
                                 </label>
                             ))}
@@ -235,7 +235,7 @@ function ModalContratarPlan({
 
                     </fieldset>
 
-                    <div className="my-6 border-t border-[#DFE9D7]" />
+                    <div className="my-6 border-t border-[#DDE4D8]" />
 
                     <div className="mb-5 flex items-center justify-between gap-3">
 
@@ -243,7 +243,7 @@ function ModalContratarPlan({
                             Total a pagar
                         </span>
 
-                        <strong className="text-xl text-[#254D2D]">
+                        <strong className="text-xl text-[#3F5D3F]">
                             {formatearPrecio(plan.precio)} COP
                         </strong>
 
@@ -280,7 +280,7 @@ function ModalContratarPlan({
                             type="button"
                             disabled={procesando}
                             onClick={onCerrar}
-                            className="rounded-xl border border-[#DDE5D6] px-5 py-3 font-bold text-[#3F5D3F] hover:bg-[#EEF3E7] disabled:opacity-50"
+                            className="rounded-xl border border-[#DDE5D6] px-5 py-3 font-bold text-[#3F5D3F] hover:bg-[#EDF1E9] disabled:opacity-50"
                         >
                             Cancelar
                         </button>
@@ -288,7 +288,7 @@ function ModalContratarPlan({
                         <button
                             type="submit"
                             disabled={procesando || !metodoPago}
-                            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#89AB78] px-5 py-3 font-bold text-white transition hover:bg-[#709261] disabled:cursor-not-allowed disabled:opacity-50"
+                            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#62795C] px-5 py-3 font-bold text-white transition hover:bg-[#52684D] disabled:cursor-not-allowed disabled:opacity-50"
                         >
                             {procesando ? (
                                 <>

@@ -1,12 +1,14 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { ScanSearch } from "lucide-react";
 import {
     obtenerPlaga,
     obtenerImagen,
     registrarPlagaJardin,
 } from "../../../services/api";
 import { useJardinStore } from "../../../store/useJardinStore";
+import GaleriaPlanta from "../../../Components/GaleriaPlanta";
 import atras from "../../../assets/atras.png";
 
 function FichaPlaga() {
@@ -16,7 +18,6 @@ function FichaPlaga() {
     const [plaga, setPlaga] = useState(null);
     const [cargando, setCargando] = useState(true);
     const [error, setError] = useState("");
-    const [imagenFallida, setImagenFallida] = useState(false);
 
     const [mostrarModal, setMostrarModal] = useState(false);
     const [registroExitoso, setRegistroExitoso] = useState(false);
@@ -37,7 +38,6 @@ function FichaPlaga() {
                 setCargando(true);
                 setError("");
                 setPlaga(null);
-                setImagenFallida(false);
 
                 const datos = await obtenerPlaga(id);
 
@@ -72,19 +72,6 @@ function FichaPlaga() {
             activo = false;
         };
     }, [id]);
-
-    // Obtenemos la imagen principal de la plaga
-    const imagenPlaga = () => {
-        const imagenPrincipal = plaga?.imagenes?.find(
-            (imagen) => imagen.es_principal
-        );
-
-        const ruta =
-            imagenPrincipal?.ruta ||
-            plaga?.imagenes?.[0]?.ruta;
-
-        return ruta ? obtenerImagen(ruta) : null;
-    };
 
     // Obtenemos el nombre de una planta del jardín
     const nombrePlanta = (registro) => {
@@ -226,7 +213,6 @@ function FichaPlaga() {
         plaga.descripcion ||
         "No hay una descripción disponible para esta plaga.";
 
-    const imagen = imagenPlaga();
 
     return (
         <main className="min-h-screen bg-[#F8F6F1] font-serif">
@@ -247,18 +233,7 @@ function FichaPlaga() {
 
                 <div className="mx-auto flex max-w-[1600px] flex-col items-center gap-8 px-5 pb-10 pt-24 lg:min-h-screen lg:flex-row lg:items-start lg:gap-[5%] lg:px-[5%] lg:pb-0 lg:pt-3">
                     <div className="w-full lg:mt-[140px] lg:w-[52%] lg:shrink-0">
-                        {imagen && !imagenFallida ? (
-                            <img
-                                src={imagen}
-                                alt={nombreComun}
-                                onError={() => setImagenFallida(true)}
-                                className="h-[350px] w-full rounded-[25px] object-cover shadow-[1px_3px_6px_#555] sm:h-[480px] lg:h-[555px] lg:rounded-[30px]"
-                            />
-                        ) : (
-                            <div className="flex h-[350px] items-center justify-center rounded-[25px] bg-[#E9EDE4] text-[#718568] sm:h-[480px] lg:h-[555px]">
-                                Sin imagen disponible
-                            </div>
-                        )}
+                        <GaleriaPlanta key={plaga.id} planta={{ ...plaga, imagenes: [...(plaga.imagenes || [])].sort((a, b) => Number(Boolean(b?.es_principal)) - Number(Boolean(a?.es_principal))) }} />
                     </div>
 
                     <aside className="w-full rounded-[20px] border border-[#D0D0D0] bg-[#F8F6F1] px-6 py-10 shadow-[0_4px_10px_rgba(0,0,0,0.08)] sm:px-12 lg:min-h-[720px] lg:w-[48%] lg:shrink-0 lg:px-[7%] lg:py-[75px]">
@@ -276,31 +251,21 @@ function FichaPlaga() {
                             </p>
 
                             <div className="mt-8">
-                                <h2 className="mb-5 text-xl font-bold text-[#3F5D3F]">
-                                    Síntomas principales
-                                </h2>
-
+                                <h2 className="mb-5 text-xl font-bold text-[#3F5D3F]">Síntomas principales</h2>
                                 {sintomas.length > 0 ? (
                                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                         {sintomas.map((sintoma, index) => (
-                                            <div
-                                                key={index}
-                                                className="flex aspect-square w-full flex-col items-center justify-center rounded-2xl border-2 border-[#BDBDBD] bg-[#F6F5F4] p-5 text-center shadow-[2px_3px_7px_rgba(100,100,100,0.18)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[3px_5px_10px_rgba(100,100,100,0.25)]"
-                                            >
-                                                <div className="mb-5 flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#82a182] text-lg font-bold text-white shadow-sm">
-                                                    {index + 1}
+                                            <div key={index} className="flex min-h-[180px] min-w-0 flex-col items-center gap-3 rounded-[20px] border-2 border-[#CBD5C3]  px-3 py-4 text-center shadow-[1px_3px_5px_rgba(90,110,80,0.12)] transition-all duration-300 hover:-translate-y-[3px] hover:shadow-[0_6px_16px_rgba(90,110,80,0.16)]">
+                                                <p className="font-nunito text-sm font-bold text-[#65775D]">Síntoma {index + 1}</p>
+                                                <div className="flex h-[55px] w-[55px] shrink-0 items-center justify-center rounded-full border-2 border-[#CBD9C1] bg-[#E8EFE3] text-[#7DA46C]">
+                                                    <ScanSearch size={25} strokeWidth={1.7} aria-hidden="true" />
                                                 </div>
-
-                                                <p className="font-nunito text-[15px] leading-relaxed text-[#777777] sm:text-base">
-                                                    {sintoma}
-                                                </p>
+                                                <p className="break-words font-nunito text-[14px] leading-relaxed text-[#717171]">{sintoma}</p>
                                             </div>
                                         ))}
                                     </div>
                                 ) : (
-                                    <p className="text-[#858585]">
-                                        No hay síntomas registrados para esta plaga.
-                                    </p>
+                                    <p className="text-[#858585]">No hay síntomas registrados para esta plaga.</p>
                                 )}
                             </div>
 

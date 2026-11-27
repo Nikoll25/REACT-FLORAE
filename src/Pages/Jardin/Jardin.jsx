@@ -2,14 +2,18 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import AsistenteFlorae from "../../Components/AsistenteFlorae";
-import { CircleCheck, Droplets, Sprout, AlertTriangle, HeartPulse, } from "lucide-react";
+import { CircleCheck, Droplets, Sprout, AlertTriangle, HeartPulse, MoreVertical, Leaf, Trash2, LoaderCircle, AlertCircle } from "lucide-react";
 import { useJardinStore } from "../../store/useJardinStore";
 import { obtenerImagen, obtenerActividadesPlanta, obtenerPlagasJardin, consultarAsistenteIA } from "../../services/api";
 
-function Jardin() {
+const listaVacia = [];
+
+function JardinContenido() {
 
 
-    const plantas = useJardinStore((state) => state.plantas);
+    const token = localStorage.getItem("token");
+    const plantas = useJardinStore((state) => state.tokenJardin === token ? state.plantas : listaVacia);
+    const cargado = useJardinStore((state) => state.tokenJardin === token && state.cargado);
     const cargarPlantas = useJardinStore((state) => state.cargarPlantas);
     const eliminarPlanta = useJardinStore((state) => state.eliminarPlanta);
     const cargando = useJardinStore((state) => state.cargando);
@@ -18,6 +22,13 @@ function Jardin() {
 
     const [tipoSeleccionado, setTipoSeleccionado] = useState("todas");
     const [plantaSeleccionada, setPlantaSeleccionada] = useState(null);
+    const [menuAbierto, setMenuAbierto] = useState(null);
+    useEffect(() => {
+        const cerrar = (evento) => { if (evento.type === "keydown" ? evento.key === "Escape" : !evento.target.closest("[data-menu-planta]")) setMenuAbierto(null); };
+        document.addEventListener("pointerdown", cerrar);
+        document.addEventListener("keydown", cerrar);
+        return () => { document.removeEventListener("pointerdown", cerrar); document.removeEventListener("keydown", cerrar); };
+    }, []);
     const [eliminando, setEliminando] = useState(false);
     const [errorEliminacion, setErrorEliminacion] = useState("");
     // CARGAR PLANTAS DESDE LA API
@@ -28,7 +39,7 @@ function Jardin() {
             console.error("Error al cargar el jardín:", error);
         });
 
-    }, [cargarPlantas]);
+    }, [cargarPlantas, token]);
 
     // Los tipos se obtienen de las plantas que tiene el usuario.
     const datosPlanta = (registro) => registro?.plant || {};
@@ -75,65 +86,42 @@ function Jardin() {
         }
 
         const cargarSalud = async () => {
-            const [resultadoPlagas, ...resultados] = await Promise.allSettled([
-                obtenerPlagasJardin(),
-                ...plantas.map((registro) => obtenerActividadesPlanta(registro.id)),
-            ]);
-            if (!vigente) return;
+            const consultaPlagas = obtenerPlagasJardin().then((datos) => {
+                const lista = datos?.plagas || datos?.plagas_jardin || datos?.registros || datos?.data || datos;
+                return { disponible: Array.isArray(lista), plagas: Array.isArray(lista) ? lista : [] };
+            }).catch(() => ({ disponible: false, plagas: [] }));
 
-            const listaPlagas = resultadoPlagas.status === "fulfilled"
-                ? resultadoPlagas.value?.plagas || resultadoPlagas.value?.plagas_jardin ||
-                resultadoPlagas.value?.registros || resultadoPlagas.value?.data || resultadoPlagas.value
-                : [];
-            const plagas = Array.isArray(listaPlagas) ? listaPlagas : [];
-            const estados = {};
-
-            plantas.forEach((registro, indice) => {
-                const resultado = resultados[indice];
-                if (resultado.status !== "fulfilled") {
-                    estados[registro.id] = { texto: "Estado no disponible", color: "#777777" };
-                    return;
+            await Promise.all(plantas.map(async (registro) => {
+                let estado;
+                try {
+                    const [respuesta, { disponible, plagas }] = await Promise.all([
+                        obtenerActividadesPlanta(registro.id), consultaPlagas,
+                    ]);
+                    const tienePlaga = plagas.some((item) =>
+                        String(item.planta_jardin_id ?? item.plant_jardin_id ?? item.planta_jardin?.id ?? "") === String(registro.id) &&
+                        ["activa", "activo"].includes(normalizar(item.estado))
+                    );
+                    const pendientes = Array.isArray(respuesta?.pendientes) ? respuesta.pendientes : [];
+                    const tipos = [...new Set(pendientes.filter((actividad) =>
+                        actividad.estado === "pendiente" && actividad.estado_visual === "vencida"
+                    ).map((actividad) => normalizar(actividad.plant_care?.tipo || actividad.tipo)).filter(Boolean))];
+                    const nombres = tipos.map((tipo) => tipo === "fertilizacion" ? "fertilización" : tipo);
+                    estado = tienePlaga ? { texto: "Enferma", color: "#B54848" }
+                        : nombres.length ? { texto: `Le falta ${nombres.join(" y ")}`, color: "#B7791F" }
+                        : disponible ? { texto: "Saludable", color: "#478863" }
+                        : { texto: "Estado no disponible", color: "#777777" };
+                } catch {
+                    estado = { texto: "Estado no disponible", color: "#777777" };
                 }
-
-                const tienePlaga = plagas.some((item) =>
-                    String(item.planta_jardin_id ?? item.plant_jardin_id ?? item.planta_jardin?.id ?? "") === String(registro.id) &&
-                    ["activa", "activo"].includes(normalizar(item.estado))
-                );
-
-                if (tienePlaga) {
-                    estados[registro.id] = { texto: "Enferma", color: "#B54848" };
-                    return;
+                if (vigente && token === localStorage.getItem("token")) {
+                    setSaludPlantas((anteriores) => ({ ...anteriores, [registro.id]: estado }));
                 }
-
-                const pendientes = resultado.value?.pendientes || [];
-                const vencidas = (Array.isArray(pendientes) ? pendientes : []).filter((actividad) =>
-                    actividad.estado === "pendiente" && actividad.estado_visual === "vencida"
-                );
-                const tiposVencidos = [...new Set(vencidas.map((actividad) =>
-                    normalizar(actividad.plant_care?.tipo || actividad.tipo)
-                ).filter(Boolean))];
-                const nombres = tiposVencidos.map((tipo) =>
-                    tipo === "fertilizacion" ? "fertilización" : tipo
-                );
-                estados[registro.id] = nombres.length
-                    ? { texto: `Le falta ${nombres.join(" y ")}`, color: "#B7791F" }
-                    : { texto: "Saludable", color: "#478863" };
-            });
-
-            if (resultadoPlagas.status !== "fulfilled") {
-                // Sin datos de plagas no podemos asegurar que esté saludable.
-                Object.keys(estados).forEach((id) => {
-                    if (estados[id].texto === "Saludable") {
-                        estados[id] = { texto: "Estado no disponible", color: "#777777" };
-                    }
-                });
-            }
-            setSaludPlantas(estados);
+            }));
         };
 
         cargarSalud();
         return () => { vigente = false; };
-    }, [plantas]);
+    }, [plantas, token]);
     // OBTENER IMAGEN DE LA PLANTA
 
     const imagenPlanta = (registro) => {
@@ -194,36 +182,30 @@ function Jardin() {
     // COMPONENTE
 
     const mostrarEstado = (estado) => {
-        const texto = String(estado || "Saludable").trim();
-        const normalizado = texto.toLowerCase();
-
+        const texto = String(estado || "Consultando estado...").trim();
+        const normalizado = normalizar(texto);
         let Icono = CircleCheck;
-        let color = "text-[#478863]";
-
+        let color = "bg-[#E8EFE3] text-[#478863]";
         if (normalizado === "enferma") {
             Icono = HeartPulse;
-            color = "text-[#B54848]";
-        } else if (
-            normalizado.includes("riego") ||
-            normalizado.includes("agua")
-        ) {
+            color = "bg-[#F8E8E4] text-[#B54848]";
+        } else if (normalizado === "le falta riego" || normalizado === "le falta agua") {
             Icono = Droplets;
-            color = "text-[#B54848]";
+            color = "bg-[#E7F1F8] text-[#35779F]";
         } else if (normalizado.startsWith("le falta")) {
             Icono = AlertTriangle;
-            color = "text-[#B54848]";
+            color = "bg-[#F8EFD9] text-[#96763C]";
         } else if (normalizado === "en crecimiento") {
             Icono = Sprout;
-            color = "text-[#A5A51F]";
+            color = "bg-[#F0F2DC] text-[#77833E]";
+        } else if (normalizado !== "saludable") {
+            Icono = normalizado.startsWith("consultando") ? LoaderCircle : AlertCircle;
+            color = "bg-[#F0F1ED] text-[#777777]";
         }
-
         return (
-            <div className={`mt-3 flex items-center justify-center gap-2 ${color}`}>
-                <Icono size={21} strokeWidth={2.3} />
-
-                <span className="text-[16px] font-medium">
-                    {texto}
-                </span>
+            <div className={`mt-3 mb-3 flex w-[83%] items-center justify-center gap-2 rounded-xl px-3 py-2 ${color}`}>
+                <Icono size={20} strokeWidth={2.2} className={`shrink-0 ${normalizado.startsWith("consultando") ? "animate-spin" : ""}`} />
+                <span className="text-center text-sm font-semibold leading-tight">{texto}</span>
             </div>
         );
     };
@@ -232,15 +214,20 @@ function Jardin() {
 
         <main className="min-h-screen bg-[#F8F7F3] pb-16">
 
-            <section className="flex flex-col gap-6 px-6 pb-5 pt-10 lg:ml-[100px] lg:flex-row lg:items-center lg:gap-5 lg:px-12">
-
-                <h1 className="shrink-0 font-serif text-3xl font-bold text-[#202020]">
-                    Mi Jardín
-                </h1>
+            <section className="flex flex-col gap-6 px-6 pb-5 pt-8 lg:ml-[100px] lg:flex-row lg:items-center lg:gap-6 lg:px-12">
+                <div className="flex shrink-0 items-center gap-3">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#E3ECDD] text-[#628557]">
+                        <Sprout size={26} strokeWidth={1.7} />
+                    </div>
+                    <div>
+                        <h1 className="font-['Lora'] text-3xl font-bold text-[#3F5D3F]">Mi Jardín</h1>
+                        <p className="mt-1 text-xs text-[#84917F]">Mi pequeño refugio verde.</p>
+                    </div>
+                </div>
 
                 {/* FILTROS */}
 
-                <nav className="w-full max-w-[500px] overflow-x-auto whitespace-nowrap scrollbar-hide border-b border-[#A1A1A1]">
+                <nav className="w-full min-w-0 max-w-[500px] overflow-x-auto whitespace-nowrap scrollbar-hide border-b border-[#A1A1A1] lg:flex-1">
 
                     <div className="flex w-max gap-10">
 
@@ -250,7 +237,7 @@ function Jardin() {
                                 key={filtro.tipo}
                                 type="button"
                                 onClick={() =>
-                                    setTipoSeleccionado(filtro.tipo)
+                                    (setTipoSeleccionado(filtro.tipo), setMenuAbierto(null))
                                 }
                                 className={`shrink-0 pb-2 text-xl transition-colors ${tipoSeleccionado === filtro.tipo
                                     ? "border-b-2 border-[#89AB78] font-semibold italic text-[#89AB78]"
@@ -285,7 +272,7 @@ function Jardin() {
 
                 {/* CARGANDO */}
 
-                {cargando ? (
+                {(cargando || !cargado && !error) && !cargado ? (
 
                     <div className="flex flex-wrap gap-8">
 
@@ -293,7 +280,7 @@ function Jardin() {
 
                             <div
                                 key={item}
-                                className="h-[310px] w-full animate-pulse bg-white p-5 shadow-sm sm:w-[270px]"
+                                className="h-[310px] w-full animate-pulse rounded-[20px] border border-[#DFE9D7] bg-white p-5 shadow-sm sm:w-[270px]"
                             >
 
                                 <div className="mt-5 h-[170px] rounded-[20px] bg-[#E8EFE3]" />
@@ -362,50 +349,25 @@ function Jardin() {
 
                                 <article
                                     key={registro.id}
-                                    className="relative flex h-[310px] w-full flex-col items-center bg-white shadow-[0_3px_6px_rgba(0,0,0,0.2)] transition duration-300 hover:-translate-y-1 hover:shadow-lg sm:w-[270px]"
+                                    className="relative flex min-h-[310px] w-full flex-col items-center rounded-[20px] border border-[#DFE9D7] bg-white shadow-[0_3px_9px_rgba(63,93,63,0.09)] transition-shadow duration-300 hover:shadow-md sm:w-[270px]"
                                 >
 
                                     {/* MENÚ DE OPCIONES */}
 
-                                    <div className="group absolute right-0 top-0 z-20">
-
-                                        <button
-                                            type="button"
-                                            className="px-2 text-[30px] leading-none text-[#555555]"
-                                            aria-label="Opciones de planta"
-                                        >
-                                            ⋮
+                                    <div data-menu-planta className={`absolute right-2 top-1.5 ${menuAbierto === registro.id ? "z-30" : "z-10"}`}>
+                                        <button type="button" onClick={() => setMenuAbierto(menuAbierto === registro.id ? null : registro.id)} aria-label="Opciones de planta" aria-expanded={menuAbierto === registro.id} className="flex h-7 w-7 items-center justify-center rounded-full text-[#3F5D3F] transition hover:bg-[#E8EFE3]">
+                                            <MoreVertical size={21} />
                                         </button>
-
-                                        <div className="invisible absolute right-0 top-7 min-w-[170px] rounded-xl bg-white py-2 opacity-0 shadow-[0_4px_10px_rgba(0,0,0,0.15)] transition group-hover:visible group-hover:opacity-100">
-
-                                            {/* VER DETALLES */}
-
-                                            <Link
-                                                to={`/jardin/vermas/${registro.id}`}
-                                                className="block px-4 py-2 text-base text-[#333333] hover:bg-[#F5F5F5]"
-                                            >
-                                                Ver detalles
-                                            </Link>
-
-                                            {/* ELIMINAR PLANTA */}
-
-                                            <button
-                                                type="button"
-                                                onClick={() => {
-
-                                                    setErrorEliminacion("");
-
-                                                    setPlantaSeleccionada(registro);
-
-                                                }}
-                                                className="w-full px-4 py-2 text-left text-base text-red-600 hover:bg-[#F5F5F5]"
-                                            >
-                                                Eliminar planta
-                                            </button>
-
-                                        </div>
-
+                                        {menuAbierto === registro.id && (
+                                            <div className="absolute right-0 top-9 w-[185px] rounded-2xl border border-[#DFE9D7] bg-white p-1.5 shadow-lg">
+                                                <Link to={`/jardin/vermas/${registro.id}`} onClick={() => setMenuAbierto(null)} className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold text-[#3F5D3F] hover:bg-[#E8EFE3]">
+                                                    <Leaf size={17} /> Ver detalles
+                                                </Link>
+                                                <button type="button" onClick={() => { setMenuAbierto(null); setErrorEliminacion(""); setPlantaSeleccionada(registro); }} className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left text-sm font-semibold text-[#B54848] hover:bg-[#F8E8E4]">
+                                                    <Trash2 size={17} /> Eliminar planta
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
 
                                     {/* IMAGEN */}
@@ -414,6 +376,8 @@ function Jardin() {
 
                                         <img
                                             src={imagen}
+                                            loading="lazy"
+                                            decoding="async"
                                             alt={nombre}
                                             className="mt-[35px] h-[170px] w-[83%] shrink-0 rounded-[20px] object-cover shadow-[0_4px_5px_rgba(0,0,0,0.2)]"
                                         />
@@ -583,6 +547,11 @@ function Jardin() {
             <AsistenteFlorae enviarMensaje={consultarAsistenteIA} />
         </main>
     );
+}
+
+function Jardin() {
+    const token = localStorage.getItem("token");
+    return <JardinContenido key={token || "sin-sesion"} />;
 }
 
 export default Jardin;

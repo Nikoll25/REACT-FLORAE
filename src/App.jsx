@@ -52,6 +52,7 @@ import DetalleSuscripcion from "./pages/Admin/Suscripciones/DetalleSuscripcion";
 import Pagos from "./pages/Admin/Pagos/Pagos";
 import DetallePago from "./pages/Admin/Pagos/DetallePago";
 import PerfilAdmin from "./pages/Admin/Perfil/PerfilAdmin";
+import SobreNosotros from "./pages/SobreNosotros/SobreNosotros";
 
 const App = () => {
     return (
@@ -77,6 +78,8 @@ const App = () => {
                     <Route path="/calendario" element={<Calendario />} />
                     <Route path="/perfil" element={<Perfil />} />
                     <Route path="/gestion-cuenta" element={<GestionCuenta />} />
+
+                    <Route path="/sobre-nosotros" element={<SobreNosotros />} />
                 </Route>
             </Route>
 

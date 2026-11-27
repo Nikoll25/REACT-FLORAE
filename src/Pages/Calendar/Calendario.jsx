@@ -143,11 +143,11 @@ function Calendario() {
     };
 
     return (
-        <main className="min-h-screen bg-[#FAF9F5] px-4 py-8 sm:px-7 lg:px-10">
+        <main className="min-h-screen bg-[#F8F7F3] px-4 py-8 sm:px-7 lg:px-10">
             <div className="mx-auto max-w-[1400px]">
 
                 {/* ENCABEZADO */}
-                <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+                <div className="mb-8 flex flex-wrap items-end justify-between gap-4 rounded-[28px] border border-[#DFE9D7] bg-[#EEF3E8] p-5 sm:p-7">
                     <div>
                         <div className="mb-3 flex items-center gap-2 text-[#83A474]">
                             <Flower2 size={17} />
@@ -157,7 +157,7 @@ function Calendario() {
                             </span>
                         </div>
 
-                        <h1 className="font-serif text-4xl font-bold text-[#3F5D3F]">
+                        <h1 className="font-['Lora'] text-4xl font-bold text-[#3F5D3F]">
                             Calendario de mi jardín
                         </h1>
 
@@ -186,7 +186,7 @@ function Calendario() {
                 <div className="grid items-start gap-7 lg:grid-cols-[minmax(0,1fr)_330px]">
 
                     {/* CALENDARIO PRINCIPAL */}
-                    <section className="min-w-0 overflow-hidden rounded-[28px] border border-[#E9E9E0] bg-white px-4 pb-7 pt-6 shadow-[0_10px_35px_rgba(45,70,40,0.035)] sm:px-7">
+                    <section className="min-w-0 overflow-hidden rounded-[28px] border border-[#DFE9D7] bg-white px-4 pb-7 pt-6 shadow-[0_10px_35px_rgba(45,70,40,0.035)] sm:px-7">
 
                         <div className="mb-6 flex items-center justify-between">
                             <div className="flex items-center gap-2">
@@ -225,7 +225,8 @@ function Calendario() {
                                 {`
                                     .calendario-natural
                                     .fc-daygrid-day[data-date="${fechaSeleccionada}"] {
-                                        background-color: #E7F0DF !important;
+                                        background-color: #DCE9D2 !important;
+                                        box-shadow: inset 0 0 0 1px #89AB78;
                                     }
                                 `}
                             </style>
@@ -306,6 +307,7 @@ function Calendario() {
                                 ["Riego", "#4189B8"],
                                 ["Fertilización", "#668C52"],
                                 ["Luz", "#D59B36"],
+                                ["Temperatura", "#9271A8"],
                             ].map(([nombre, color]) => (
                                 <span
                                     key={nombre}
@@ -335,7 +337,7 @@ function Calendario() {
                     <aside className="space-y-6">
 
                         {/* PLANTAS DEL JARDÍN */}
-                        <section className="border-l-[3px] border-[#89AB78] pl-5">
+                        <section className="rounded-[28px] border border-[#DFE9D7] bg-[#F0F4EB] p-5">
                             <button
                                 type="button"
                                 onClick={() =>
@@ -348,7 +350,7 @@ function Calendario() {
                                         Mis compañeras verdes
                                     </span>
 
-                                    <h2 className="mt-1 font-serif text-2xl font-bold text-[#3F5D3F]">
+                                    <h2 className="mt-1 font-['Lora'] text-2xl font-bold text-[#3F5D3F]">
                                         Mi jardín
                                     </h2>
                                 </div>
@@ -402,8 +404,8 @@ function Calendario() {
                                                     }}
                                                     className={`flex w-full items-center gap-3 rounded-2xl px-2 py-2 text-left transition ${
                                                         activa
-                                                            ? "bg-[#EAF1E5]"
-                                                            : "hover:bg-[#F0F2EA]"
+                                                            ? "bg-[#DCE9D2]"
+                                                            : "bg-white/70 hover:bg-white"
                                                     }`}
                                                 >
                                                     <div
@@ -436,7 +438,7 @@ function Calendario() {
                                                                 "Mi planta"}
                                                         </p>
 
-                                                        <p className="mt-1 truncate text-xs italic text-[#92998C]">
+                                                        <p className="mt-1 truncate text-xs italic text-[#6B7867]">
                                                             {planta.nombre_cientifico ||
                                                                 "Mi jardín"}
                                                         </p>
@@ -457,7 +459,7 @@ function Calendario() {
                         </section>
 
                         {/* TAREAS DEL DÍA */}
-                        <section className="rounded-[28px] border border-[#E9E9E0] bg-white p-5 shadow-[0_8px_25px_rgba(45,70,40,0.035)] sm:p-6">
+                        <section className="rounded-[28px] border border-[#DFE9D7] bg-[#FDFEFB] p-5 shadow-[0_8px_25px_rgba(45,70,40,0.035)] sm:p-6">
 
                             <div className="mb-5 flex items-center gap-3">
                                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#EAF2E4] text-[#719662]">
@@ -469,13 +471,13 @@ function Calendario() {
                                         Un cuidado a la vez
                                     </p>
 
-                                    <h2 className="font-serif text-xl font-bold text-[#3F5D3F]">
+                                    <h2 className="font-['Lora'] text-xl font-bold text-[#3F5D3F]">
                                         Tareas del día
                                     </h2>
                                 </div>
                             </div>
 
-                            <p className="mb-5 text-sm capitalize text-[#879082]">
+                            <p className="mb-5 rounded-xl bg-[#E8EFE3] px-3 py-2.5 text-sm capitalize text-[#587350]">
                                 {formatearFecha(fechaSeleccionada)}
                             </p>
 
@@ -503,7 +505,7 @@ function Calendario() {
                                         ¡Un día tranquilo!
                                     </p>
 
-                                    <p className="mt-2 text-xs leading-5 text-[#92998C]">
+                                    <p className="mt-2 text-xs leading-5 text-[#6B7867]">
                                         No hay cuidados programados para esta fecha.
                                     </p>
                                 </div>
@@ -522,7 +524,7 @@ function Calendario() {
                                         </button>
                                     )}
 
-                                    <div className="space-y-1">
+                                    <div className="space-y-2">
                                         {tareasDelDia.map((actividad) => {
                                             const estado =
                                                 obtenerEstado(actividad);
@@ -544,17 +546,17 @@ function Calendario() {
                                             return (
                                                 <label
                                                     key={actividad.id}
-                                                    className={`flex items-start gap-3 border-b border-[#F0F1EA] py-4 last:border-b-0 ${
+                                                    style={{ backgroundColor: color.fondo }}
+                                                    className={`flex items-start gap-3 rounded-2xl border border-white/80 p-3 ${
                                                         completada
                                                             ? "opacity-65"
                                                             : "cursor-pointer"
                                                     }`}
                                                 >
                                                     <div
-                                                        className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
+                                                        className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/80"
                                                         style={{
-                                                            background:
-                                                                color.fondo,
+                                                            background: "#FFFFFFB3",
                                                             color:
                                                                 color.texto,
                                                         }}
@@ -569,14 +571,14 @@ function Calendario() {
                                                         <p
                                                             className={`text-sm font-semibold ${
                                                                 completada
-                                                                    ? "text-[#92998C] line-through"
+                                                                    ? "text-[#6B7867] line-through"
                                                                     : "text-[#3F5D3F]"
                                                             }`}
                                                         >
                                                             {tipo}
                                                         </p>
 
-                                                        <p className="mt-1 text-xs leading-5 text-[#92998C]">
+                                                        <p className="mt-1 text-xs leading-5 text-[#6B7867]">
                                                             {actividad.plant_care?.descripcion ||
                                                                 "Cuidado programado"}
                                                         </p>
@@ -622,7 +624,7 @@ function Calendario() {
                                     </div>
 
                                     <div className="mt-5">
-                                        <p className="mb-3 text-center text-xs text-[#92998C]">
+                                        <p className="mb-3 text-center text-xs text-[#6B7867]">
                                             {seleccionadas.length
                                                 ? `${seleccionadas.length} actividad(es) seleccionada(s)`
                                                 : "Selecciona las tareas que realizaste"}
@@ -657,7 +659,7 @@ function Calendario() {
                             )}
                         </section>
 
-                        <p className="px-3 text-center font-serif text-sm italic text-[#96A18D]">
+                        <p className="rounded-2xl bg-[#EEF3E8] p-4 text-center font-['Lora'] text-sm italic text-[#718568]">
                             “Cuidar una planta es disfrutar de sus pequeños cambios.”
                         </p>
                     </aside>

@@ -32,14 +32,14 @@ const filtros = [
 ];
 
 const coloresEstado = {
-    activa: "bg-[#E8EFE3] text-[#3F5D3F]",
+    activa: "bg-[#E9EEE5] text-[#3F5D3F]",
     vencida: "bg-[#F2EDE0] text-[#96763C]",
     cancelada: "bg-[#F8ECEA] text-[#A34C4C]",
 };
 
-const botonPrincipal = "rounded-xl bg-[#89AB78] px-5 py-3 font-bold text-white transition hover:bg-[#709261]";
-const tarjeta = "rounded-[28px] border border-[#DFE9D7] bg-white/95 p-6 sm:p-8";
-const estiloEtiqueta = "rounded-full bg-[#E8EFE3] px-3 py-1.5 text-xs font-bold text-[#3F5D3F]";
+const botonPrincipal = "rounded-xl bg-[#62795C] px-5 py-3 font-bold text-white transition hover:bg-[#52684D]";
+const tarjeta = "rounded-[28px] border border-[#DDE4D8] bg-white/95 p-6 sm:p-8";
+const estiloEtiqueta = "rounded-full bg-[#E9EEE5] px-3 py-1.5 text-xs font-bold text-[#3F5D3F]";
 
 // Mostrar los beneficios de cada plan
 function Beneficios({ creditos, actual = false }) {
@@ -59,7 +59,7 @@ function Beneficios({ creditos, actual = false }) {
         <div className={actual ? "space-y-3 text-[#626B60]" : "mb-7 flex-1 space-y-4"}>
             {beneficios.map((beneficio) => (
                 <div key={beneficio} className={`flex gap-3 text-[#626B60] ${actual ? "items-center" : "items-start text-sm"}`}>
-                    <CheckCircle2 size={20} className="shrink-0 text-[#89AB78]" />
+                    <CheckCircle2 size={20} className="shrink-0 text-[#82977C]" />
                     {beneficio}
                 </div>
             ))}
@@ -72,7 +72,7 @@ function SinRegistros({ icono: Icono, titulo, descripcion }) {
     return (
         <div className="py-12 text-center">
             <Icono size={45} className="mx-auto mb-4 text-[#A3B18A]" />
-            <h3 className="font-bold text-[#3F5D3F]">{titulo}</h3>
+            <h3 className="font-lora font-bold text-[#3F5D3F]">{titulo}</h3>
             <p className="mt-2 text-sm text-[#6B7280]">{descripcion}</p>
         </div>
     );
@@ -211,9 +211,9 @@ function PagosSuscripciones() {
     if (error || errorCreditos || !creditos || !planActual) {
         return (
             <section className={`${tarjeta} text-center`}>
-                {mensajeExito && <p role="status" className="mb-5 rounded-xl bg-[#E8EFE3] p-4 text-[#3F5D3F]">{mensajeExito}</p>}
+                {mensajeExito && <p role="status" className="mb-5 rounded-xl bg-[#E9EEE5] p-4 text-[#3F5D3F]">{mensajeExito}</p>}
                 <AlertCircle size={42} className="mx-auto mb-4 text-[#CF7657]" />
-                <h2 className="text-xl font-bold text-[#254D2D]">No pudimos consultar tu información</h2>
+                <h2 className="font-lora text-xl font-bold text-[#3F5D3F]">No pudimos consultar tu información</h2>
                 <p className="mt-3 text-sm text-[#6B7280]">{error || errorCreditos || "No se recibió la información del plan."}</p>
                 <button type="button" onClick={actualizar} className={`${botonPrincipal} mx-auto mt-6 flex items-center gap-2`}>
                     <RefreshCw size={18} /> Reintentar
@@ -227,14 +227,14 @@ function PagosSuscripciones() {
             {/* Encabezado */}
             <div className="mb-7">
                 <div className="flex items-center gap-3">
-                    <h1 className="text-3xl font-bold text-[#254D2D] sm:text-4xl">Pagos y suscripciones</h1>
-                    <CreditCard size={30} className="shrink-0 text-[#89AB78]" />
+                    <h1 className="font-lora text-3xl font-bold text-[#3F5D3F] sm:text-4xl">Pagos y suscripciones</h1>
+                    <CreditCard size={30} className="shrink-0 text-[#82977C]" />
                 </div>
                 <p className="mt-3 text-[#626B60]">Administra tu plan y consulta tus créditos, suscripciones y pagos.</p>
             </div>
 
             {mensajeExito && (
-                <div role="status" className="mb-6 flex items-center gap-3 rounded-2xl border border-[#CBD9C1] bg-[#E8EFE3] p-4 font-semibold text-[#3F5D3F]">
+                <div role="status" className="mb-6 flex items-center gap-3 rounded-2xl border border-[#CBD9C1] bg-[#E9EEE5] p-4 font-semibold text-[#3F5D3F]">
                     <CheckCircle2 size={24} className="shrink-0" />
                     <span className="flex-1">{mensajeExito}</span>
                     <button type="button" aria-label="Cerrar mensaje" onClick={() => setMensajeExito("")} className="rounded-full p-1 hover:bg-[#DCE7D5]">
@@ -244,9 +244,9 @@ function PagosSuscripciones() {
             )}
 
             {/* Navegación */}
-            <nav aria-label="Pagos y suscripciones" className="mb-7 flex gap-2 overflow-x-auto rounded-2xl border border-[#DFE9D7] bg-white/90 p-2">
+            <nav aria-label="Pagos y suscripciones" className="mb-7 flex gap-2 overflow-x-auto rounded-2xl border border-[#DDE4D8] bg-white/90 p-2">
                 {pestanas.map(({ id, nombre, icono: Icono }) => (
-                    <button key={id} type="button" onClick={() => setSeccion(id)} className={`flex shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-4 py-3 text-sm font-bold transition ${seccion === id ? "bg-[#89AB78] text-white" : "text-[#3F5D3F] hover:bg-[#EEF3E7]"}`}>
+                    <button key={id} type="button" onClick={() => setSeccion(id)} className={`flex shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-4 py-3 text-sm font-bold transition ${seccion === id ? "bg-[#62795C] text-white" : "text-[#3F5D3F] hover:bg-[#EDF1E9]"}`}>
                         <Icono size={18} /> {nombre}
                     </button>
                 ))}
@@ -257,18 +257,18 @@ function PagosSuscripciones() {
                 <div className="space-y-6">
                     <section className={`${tarjeta} shadow-sm`}>
                         <div className="flex flex-wrap items-center gap-4">
-                            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-[#E8EFE3] text-[#3F5D3F]">
+                            <div className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl ${esPremium ? "bg-[#F4EEDF] text-[#96763C]" : "bg-[#E9EEE5] text-[#3F5D3F]"}`}>
                                 {esPremium ? <Crown size={32} /> : <Sprout size={32} />}
                             </div>
                             <div className="flex-1">
                                 <p className="text-sm font-semibold text-[#6B7280]">Tu plan actual</p>
-                                <h2 className="text-2xl font-bold text-[#254D2D]">Florae {planActual.nombre}</h2>
+                                <h2 className="font-lora text-2xl font-bold text-[#3F5D3F]">Florae {planActual.nombre}</h2>
                             </div>
-                            <span className="rounded-full bg-[#E8EFE3] px-4 py-2 text-sm font-bold text-[#3F5D3F]">{esPremium ? "Activa" : "Plan gratuito"}</span>
+                            <span className="rounded-full bg-[#E9EEE5] px-4 py-2 text-sm font-bold text-[#3F5D3F]">{esPremium ? "Activa" : "Plan gratuito"}</span>
                         </div>
 
                         <div className="mt-6">
-                            <span className="text-4xl font-bold text-[#254D2D]">{formatearPrecio(planActual.precio)}</span>
+                            <span className="text-4xl font-bold text-[#3F5D3F]">{formatearPrecio(planActual.precio)}</span>
                             <span className="ml-2 text-[#6B7280]">COP / mes</span>
                         </div>
 
@@ -278,11 +278,11 @@ function PagosSuscripciones() {
 
                         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                             <span className="flex items-center gap-2 font-bold text-[#3F5D3F]"><Sparkles size={20} /> Créditos disponibles</span>
-                            <span className="font-bold text-[#254D2D]">{creditos.creditos_disponibles}/{creditos.creditos_totales}</span>
+                            <span className="font-bold text-[#3F5D3F]">{creditos.creditos_disponibles}/{creditos.creditos_totales}</span>
                         </div>
 
-                        <div role="progressbar" aria-label="Créditos disponibles" aria-valuenow={creditos.creditos_disponibles} aria-valuemin={0} aria-valuemax={creditos.creditos_totales} className="h-3 overflow-hidden rounded-full bg-[#E8EFE3]">
-                            <div className="h-full rounded-full bg-[#89AB78] transition-all duration-500" style={{ width: `${porcentaje}%` }} />
+                        <div role="progressbar" aria-label="Créditos disponibles" aria-valuenow={creditos.creditos_disponibles} aria-valuemin={0} aria-valuemax={creditos.creditos_totales} className="h-3 overflow-hidden rounded-full bg-[#E9EEE5]">
+                            <div className="h-full rounded-full bg-[#82977C] transition-all duration-500" style={{ width: `${porcentaje}%` }} />
                         </div>
 
                         <div className="mt-6 grid gap-4 sm:grid-cols-2">
@@ -290,9 +290,9 @@ function PagosSuscripciones() {
                                 { titulo: "Créditos consumidos", valor: creditos.creditos_consumidos },
                                 { titulo: "Créditos restantes", valor: creditos.creditos_disponibles },
                             ].map(({ titulo, valor }) => (
-                                <div key={titulo} className="rounded-2xl bg-[#F5F7F1] p-4">
+                                <div key={titulo} className="rounded-2xl bg-[#F5F7F2] p-4">
                                     <p className="text-sm text-[#626B60]">{titulo}</p>
-                                    <p className="mt-1 text-2xl font-bold text-[#254D2D]">{valor}</p>
+                                    <p className="mt-1 text-2xl font-bold text-[#3F5D3F]">{valor}</p>
                                 </div>
                             ))}
                         </div>
@@ -310,7 +310,7 @@ function PagosSuscripciones() {
                                 { titulo: "Fin del período:", fecha: creditos.fecha_vencimiento },
                             ].map(({ titulo, fecha }) => (
                                 <p key={titulo} className="flex flex-wrap items-center gap-2">
-                                    <CalendarDays size={19} className="text-[#89AB78]" />
+                                    <CalendarDays size={19} className="text-[#82977C]" />
                                     {titulo} <strong className="text-[#3F5D3F]">{formatearFecha(fecha)}</strong>
                                 </p>
                             ))}
@@ -320,14 +320,14 @@ function PagosSuscripciones() {
                             <button type="button" onClick={() => setSeccion("planes")} className={botonPrincipal}>
                                 {esPremium ? "Explorar planes" : "Mejorar mi plan"}
                             </button>
-                            <button type="button" onClick={actualizar} className="flex items-center gap-2 rounded-xl border border-[#DDE5D6] px-5 py-3 font-bold text-[#3F5D3F] transition hover:bg-[#EEF3E7]">
+                            <button type="button" onClick={actualizar} className="flex items-center gap-2 rounded-xl border border-[#DDE5D6] px-5 py-3 font-bold text-[#3F5D3F] transition hover:bg-[#EDF1E9]">
                                 <RefreshCw size={18} /> Actualizar
                             </button>
                         </div>
                     </section>
 
-                    <section className="rounded-[25px] border border-[#DFE9D7] bg-white/90 p-6">
-                        <h3 className="mb-4 text-xl font-bold text-[#254D2D]">Beneficios de tu plan</h3>
+                    <section className="rounded-[25px] border border-[#DDE4D8] bg-white/90 p-6">
+                        <h3 className="font-lora mb-4 text-xl font-bold text-[#3F5D3F]">Beneficios de tu plan</h3>
                         <Beneficios creditos={creditos.creditos_totales} actual />
                     </section>
                 </div>
@@ -336,7 +336,7 @@ function PagosSuscripciones() {
             {/* Planes disponibles */}
             {seccion === "planes" && (
                 <section>
-                    <h2 className="text-2xl font-bold text-[#254D2D]">Encuentra tu plan ideal</h2>
+                    <h2 className="font-lora text-2xl font-bold text-[#3F5D3F]">Encuentra tu plan ideal</h2>
                     <p className="mb-6 mt-2 text-[#626B60]">Elige la cantidad de créditos que necesitas para cuidar tu jardín.</p>
 
                     {planes.length === 0 ? (
@@ -357,18 +357,18 @@ function PagosSuscripciones() {
                                 else if (puedeContratar) textoBoton = esRenovable ? "Renovar Premium" : "Contratar Premium";
 
                                 return (
-                                    <article key={plan.id} className={`flex flex-col rounded-[28px] border bg-white p-7 shadow-sm ${esPlanPremium ? "border-[#89AB78]" : "border-[#DFE9D7]"}`}>
+                                    <article key={plan.id} className={`flex flex-col rounded-[28px] border bg-white p-7 shadow-sm ${esPlanPremium ? "border-[#DCCBA4]" : "border-[#DDE4D8]"}`}>
                                         <div className="mb-5 flex items-center justify-between gap-3">
-                                            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#E8EFE3] text-[#3F5D3F]">
+                                            <div className={`flex h-14 w-14 items-center justify-center rounded-2xl ${esPlanPremium ? "bg-[#F4EEDF] text-[#96763C]" : "bg-[#E9EEE5] text-[#3F5D3F]"}`}>
                                                 {esPlanPremium ? <Crown size={28} /> : <Sprout size={28} />}
                                             </div>
                                             {esActual && <span className={estiloEtiqueta}>Plan actual</span>}
                                         </div>
 
-                                        <h3 className="text-2xl font-bold text-[#254D2D]">Florae {plan.nombre}</h3>
+                                        <h3 className="font-lora text-2xl font-bold text-[#3F5D3F]">Florae {plan.nombre}</h3>
 
                                         <div className="mt-4">
-                                            <span className="text-3xl font-bold text-[#254D2D]">{formatearPrecio(plan.precio)}</span>
+                                            <span className="text-3xl font-bold text-[#3F5D3F]">{formatearPrecio(plan.precio)}</span>
                                             <span className="ml-2 text-sm text-[#6B7280]">/ mes</span>
                                         </div>
 
@@ -378,7 +378,7 @@ function PagosSuscripciones() {
 
                                         <Beneficios creditos={plan.creditos_mensuales} />
 
-                                        <button type="button" disabled={!puedeContratar} onClick={() => abrirContratacion(plan)} className={`w-full rounded-xl px-5 py-3 font-bold transition ${puedeContratar ? "bg-[#89AB78] text-white hover:bg-[#709261]" : "cursor-not-allowed bg-[#E8EFE3] text-[#63775E]"}`}>
+                                        <button type="button" disabled={!puedeContratar} onClick={() => abrirContratacion(plan)} className={`w-full rounded-xl px-5 py-3 font-bold transition ${puedeContratar ? "bg-[#62795C] text-white hover:bg-[#52684D]" : "cursor-not-allowed bg-[#E9EEE5] text-[#63775E]"}`}>
                                             {textoBoton}
                                         </button>
                                     </article>
@@ -392,12 +392,12 @@ function PagosSuscripciones() {
             {/* Historial de suscripciones */}
             {seccion === "suscripciones" && (
                 <section className={tarjeta}>
-                    <h2 className="text-2xl font-bold text-[#254D2D]">Mis suscripciones</h2>
+                    <h2 className="font-lora text-2xl font-bold text-[#3F5D3F]">Mis suscripciones</h2>
                     <p className="mt-2 text-[#626B60]">Consulta las suscripciones que has tenido en Florae.</p>
 
                     <div className="my-6 flex flex-wrap gap-2">
                         {filtros.map(({ id, nombre }) => (
-                            <button key={id} type="button" onClick={() => setFiltro(id)} className={`rounded-full px-4 py-2 text-sm font-bold transition ${filtro === id ? "bg-[#89AB78] text-white" : "bg-[#EEF3E7] text-[#3F5D3F]"}`}>
+                            <button key={id} type="button" onClick={() => setFiltro(id)} className={`rounded-full px-4 py-2 text-sm font-bold transition ${filtro === id ? "bg-[#62795C] text-white" : "bg-[#EDF1E9] text-[#3F5D3F]"}`}>
                                 {nombre}
                             </button>
                         ))}
@@ -408,14 +408,14 @@ function PagosSuscripciones() {
                     ) : (
                         <div className="space-y-4">
                             {suscripcionesFiltradas.map((suscripcion) => (
-                                <article key={suscripcion.id} className="rounded-2xl border border-[#DFE9D7] p-5">
+                                <article key={suscripcion.id} className="rounded-2xl border border-[#DDE4D8] p-5">
                                     <div className="flex flex-wrap items-center justify-between gap-3">
                                         <div className="flex items-center gap-3">
-                                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#E8EFE3] text-[#3F5D3F]">
+                                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#E9EEE5] text-[#3F5D3F]">
                                                 <Crown size={24} />
                                             </div>
                                             <div>
-                                                <h3 className="font-bold text-[#254D2D]">Florae {suscripcion.plan?.nombre || "—"}</h3>
+                                                <h3 className="font-lora font-bold text-[#3F5D3F]">Florae {suscripcion.plan?.nombre || "—"}</h3>
                                                 <p className="text-xs text-[#6B7280]">Suscripción #{suscripcion.id}</p>
                                             </div>
                                         </div>
@@ -430,7 +430,7 @@ function PagosSuscripciones() {
                                     </div>
 
                                     {String(suscripcion.id) === String(suscripcionActual?.id) && (
-                                        <p className="mt-4 text-xs font-bold text-[#709261]">Suscripción actual</p>
+                                        <p className="mt-4 text-xs font-bold text-[#687F62]">Suscripción actual</p>
                                     )}
 
                                     {suscripcion.estado === "vencida" && !esPremium && (
@@ -448,7 +448,7 @@ function PagosSuscripciones() {
             {/* Historial de pagos */}
             {seccion === "pagos" && (
                 <section className={tarjeta}>
-                    <h2 className="text-2xl font-bold text-[#254D2D]">Historial de pagos</h2>
+                    <h2 className="font-lora text-2xl font-bold text-[#3F5D3F]">Historial de pagos</h2>
                     <p className="mb-6 mt-2 text-[#626B60]">Consulta los pagos registrados de tus suscripciones.</p>
 
                     {pagos.length === 0 ? (
@@ -456,19 +456,19 @@ function PagosSuscripciones() {
                     ) : (
                         <div className="space-y-4">
                             {pagos.map((pago) => (
-                                <article key={pago.id} className="rounded-2xl border border-[#DFE9D7] p-5">
+                                <article key={pago.id} className="rounded-2xl border border-[#DDE4D8] p-5">
                                     <div className="flex flex-wrap items-center justify-between gap-4">
                                         <div className="flex items-center gap-3">
-                                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#E8EFE3] text-[#3F5D3F]">
+                                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#E9EEE5] text-[#3F5D3F]">
                                                 <CreditCard size={24} />
                                             </div>
                                             <div>
-                                                <h3 className="font-bold text-[#254D2D]">Florae {pago.suscripcion?.plan?.nombre || "—"}</h3>
+                                                <h3 className="font-lora font-bold text-[#3F5D3F]">Florae {pago.suscripcion?.plan?.nombre || "—"}</h3>
                                                 <p className="mt-1 text-xs text-[#6B7280]">{formatearFecha(pago.fecha_pago)}</p>
                                             </div>
                                         </div>
                                         <div className="text-right">
-                                            <p className="text-xl font-bold text-[#254D2D]">{formatearPrecio(pago.monto)}</p>
+                                            <p className="text-xl font-bold text-[#3F5D3F]">{formatearPrecio(pago.monto)}</p>
                                             <p className="text-xs text-[#6B7280]">COP</p>
                                         </div>
                                     </div>

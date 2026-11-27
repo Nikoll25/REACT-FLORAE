@@ -22,7 +22,10 @@ const Header = () => {
     const logout = useAuthStore((state) => state.logout);
     const [panelAbierto, setPanelAbierto] = useState(false);
     const [menuAbierto, setMenuAbierto] = useState(false);
-    const [sinLeer, setSinLeer] = useState(0);
+    const [contador, setContador] = useState({ token: null, cantidad: 0 });
+    const sinLeer = contador.token === token ? contador.cantidad : 0;
+    const solicitudRef = useRef(null);
+    const ultimaConsulta = useRef(0);
     const [errorImagen, setErrorImagen] = useState(false);
     const [cerrandoSesion, setCerrandoSesion] = useState(false);
     const menuRef = useRef(null);
@@ -31,35 +34,61 @@ const Header = () => {
     const nombre = usuario?.nombre?.trim().split(/\s+/)[0] || "Jardinero";
     const foto = !errorImagen && usuario?.imagen_url ? usuario.imagen_url : perfil;
 
-    // Consultar las notificaciones sin leer
-    const consultarNotificaciones = useCallback(async () => {
-        if (!token) {
-            setSinLeer(0);
-            return;
+    // Evitamos consultas duplicadas y actualizamos después de una lectura.
+    const consultarNotificaciones = useCallback(async (forzar = false) => {
+        if (!token || useAuthStore.getState().token !== token) return;
+        const pendiente = solicitudRef.current;
+        if (pendiente?.token === token) {
+            if (forzar === true) pendiente.repetir = true;
+            return pendiente.promesa;
         }
-        try {
-            const respuesta = await obtenerNotificacionesSinLeer();
-            if (useAuthStore.getState().token === token) setSinLeer(respuesta.sin_leer || 0);
-        } catch (error) {
-            console.error("Error al consultar notificaciones:", error);
-        }
+        const solicitud = { token, repetir: false };
+        solicitudRef.current = solicitud;
+        solicitud.promesa = (async () => {
+            do {
+                solicitud.repetir = false;
+                try {
+                    const respuesta = await obtenerNotificacionesSinLeer();
+                    if (solicitudRef.current !== solicitud || useAuthStore.getState().token !== token) return;
+                    setContador({ token, cantidad: Number(respuesta.sin_leer) || 0 });
+                    ultimaConsulta.current = Date.now();
+                } catch (error) {
+                    console.error("Error al consultar notificaciones:", error);
+                }
+            } while (solicitud.repetir && solicitudRef.current === solicitud && useAuthStore.getState().token === token);
+        })().finally(() => {
+            if (solicitudRef.current === solicitud) solicitudRef.current = null;
+        });
+        return solicitud.promesa;
     }, [token]);
 
     useEffect(() => {
-        consultarNotificaciones();
-        const intervalo = setInterval(consultarNotificaciones, 30000);
-        const actualizarAlVolver = () => {
-            if (document.visibilityState === "visible") consultarNotificaciones();
+        ultimaConsulta.current = 0;
+        if (!token) return;
+        const actualizarSiVisible = () => {
+            if (document.visibilityState === "visible" && Date.now() - ultimaConsulta.current >= 30000) {
+                consultarNotificaciones();
+            }
         };
-        document.addEventListener("visibilitychange", actualizarAlVolver);
-        window.addEventListener("florae:notificaciones", consultarNotificaciones);
-
+        const actualizarPorEvento = () => consultarNotificaciones(true);
+        actualizarSiVisible();
+        const intervalo = setInterval(actualizarSiVisible, 30000);
+        document.addEventListener("visibilitychange", actualizarSiVisible);
+        window.addEventListener("florae:notificaciones", actualizarPorEvento);
         return () => {
             clearInterval(intervalo);
-            document.removeEventListener("visibilitychange", actualizarAlVolver);
-            window.removeEventListener("florae:notificaciones", consultarNotificaciones);
+            document.removeEventListener("visibilitychange", actualizarSiVisible);
+            window.removeEventListener("florae:notificaciones", actualizarPorEvento);
+            solicitudRef.current = null;
         };
-    }, [consultarNotificaciones, location.pathname]);
+    }, [token, consultarNotificaciones]);
+
+    // Al navegar solo consultamos si los datos necesitan actualizarse.
+    useEffect(() => {
+        if (token && document.visibilityState === "visible" && Date.now() - ultimaConsulta.current >= 30000) {
+            consultarNotificaciones();
+        }
+    }, [location.pathname, token, consultarNotificaciones]);
 
     // Cerrar los paneles al cambiar de ruta
     useEffect(() => {
@@ -193,7 +222,7 @@ const Header = () => {
                     <Navbar />
                 </div>
             </header>
-            <PanelNotificaciones abierto={panelAbierto} cerrar={() => setPanelAbierto(false)} alActualizar={consultarNotificaciones} />
+            <PanelNotificaciones abierto={panelAbierto} cerrar={() => setPanelAbierto(false)} alActualizar={() => consultarNotificaciones(true)} />
         </>
     );
 };

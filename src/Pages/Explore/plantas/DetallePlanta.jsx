@@ -2,7 +2,8 @@
 import { useEffect, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { useJardinStore } from "../../../store/useJardinStore";
-import { obtenerPlanta, obtenerImagen } from "../../../services/api";
+import { obtenerPlanta } from "../../../services/api";
+import GaleriaPlanta from "../../../Components/GaleriaPlanta";
 import atras from "../../../assets/atras.png";
 
 function DetallePlanta() {
@@ -93,20 +94,6 @@ function DetallePlanta() {
         return () => { activo = false; };
     }, [id]);
 
-    // obtenemos la imagen de la planta
-    const imagenPlanta = () => {
-
-        const imagen =
-            planta?.image_plant?.image ||
-            planta?.imagenes?.[0]?.image ||
-            planta?.imagenes?.[0]?.imagen ||
-            planta?.imagenes?.[0]?.ruta ||
-            planta?.image_url ||
-            planta?.image ||
-            planta?.imagen;
-
-        return imagen ? obtenerImagen(imagen) : null;
-    };
 
     // mostramos los datos principales
     const datosPlanta = [
@@ -221,17 +208,7 @@ function DetallePlanta() {
                     {/* fotografía */}
                     <div className="w-full lg:mt-[140px] lg:w-[52%] lg:shrink-0">
 
-                        {imagenPlanta() ? (
-                            <img
-                                src={imagenPlanta()}
-                                alt={planta.nombre_comun || planta.common_name}
-                                className="h-[350px] w-full rounded-[25px] object-cover shadow-[1px_3px_6px_#555] sm:h-[480px] lg:h-[555px] lg:rounded-[30px]"
-                            />
-                        ) : (
-                            <div className="flex h-[350px] items-center justify-center rounded-[25px] bg-[#E9EDE4] text-[#718568] sm:h-[480px] lg:h-[555px]">
-                                Sin imagen disponible
-                            </div>
-                        )}
+                        <GaleriaPlanta key={planta.id} planta={planta} />
 
                     </div>
 
